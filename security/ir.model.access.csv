@@ -1,0 +1,16 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hurimoney_concessionnaire_user,hurimoney.concessionnaire user,model_hurimoney_concessionnaire,group_hurimoney_user,1,1,1,0
+access_hurimoney_concessionnaire_manager,hurimoney.concessionnaire manager,model_hurimoney_concessionnaire,group_hurimoney_manager,1,1,1,1
+access_hurimoney_concessionnaire_admin,hurimoney.concessionnaire admin,model_hurimoney_concessionnaire,group_hurimoney_admin,1,1,1,1
+access_hurimoney_kit_user,hurimoney.kit user,model_hurimoney_kit,group_hurimoney_user,1,1,1,0
+access_hurimoney_kit_manager,hurimoney.kit manager,model_hurimoney_kit,group_hurimoney_manager,1,1,1,1
+access_hurimoney_kit_admin,hurimoney.kit admin,model_hurimoney_kit,group_hurimoney_admin,1,1,1,1
+access_hurimoney_transaction_user,hurimoney.transaction user,model_hurimoney_transaction,group_hurimoney_user,1,0,1,0
+access_hurimoney_transaction_manager,hurimoney.transaction manager,model_hurimoney_transaction,group_hurimoney_manager,1,1,1,1
+access_hurimoney_transaction_admin,hurimoney.transaction admin,model_hurimoney_transaction,group_hurimoney_admin,1,1,1,1
+access_wakati_api_connector_manager,wakati.api.connector manager,model_wakati_api_connector,group_hurimoney_manager,1,0,0,0
+access_wakati_api_connector_admin,wakati.api.connector admin,model_wakati_api_connector,group_hurimoney_admin,1,1,1,1
+access_hurimoney_dashboard_user,hurimoney.dashboard user,model_hurimoney_dashboard,group_hurimoney_user,1,0,0,0
+access_hurimoney_dashboard_manager,hurimoney.dashboard manager,model_hurimoney_dashboard,group_hurimoney_manager,1,0,0,0
+access_hurimoney_import_wizard_user,hurimoney.import.wizard user,model_hurimoney_import_wizard,group_hurimoney_user,1,1,1,0
+access_hurimoney_import_wizard_manager,hurimoney.import.wizard manager,model_hurimoney_import_wizard,group_hurimoney_manager,1,1,1,0

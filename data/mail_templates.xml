@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Template: Activation concessionnaire -->
+        <record id="mail_template_concessionnaire_activation" model="mail.template">
+            <field name="name">HuriMoney - Activation Concessionnaire</field>
+            <field name="model_id" ref="model_hurimoney_concessionnaire"/>
+            <field name="subject">Bienvenue chez HuriMoney - ${object.name}</field>
+            <field name="email_from">${(object.company_id.email or user.email)|safe}</field>
+            <field name="email_to">${object.email|safe}</field>
+            <field name="body_html" type="html">
+<div style="font-family: 'Lucida Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 14px; color: #333;">
+    <h2 style="color: #00529B;">Bienvenue chez HuriMoney!</h2>
+    
+    <p>Cher(e) ${object.name},</p>
+    
+    <p>Nous sommes heureux de vous accueillir en tant que concessionnaire HuriMoney.</p>
+    
+    <p><strong>Vos informations:</strong></p>
+    <ul>
+        <li>Code concessionnaire: <strong>${object.code}</strong></li>
+        <li>Zone: ${object.zone}</li>
+        <li>Agent commercial: ${object.agent_id.name}</li>
+    </ul>
+    
+    <p><strong>Prochaines étapes:</strong></p>
+    <ol>
+        <li>Récupérez votre kit auprès de votre agent commercial</li>
+        <li>Activez votre téléphone avec la carte SIM fournie</li>
+        <li>Commencez à effectuer des transactions</li>
+    </ol>
+    
+    <p>Pour toute question, contactez votre agent ou appelez le support au 269 123 456.</p>
+    
+    <p>Cordialement,<br/>
+    L'équipe HuriMoney</p>
+</div>
+            </field>
+        </record>
+        
+        <!-- Template: Rapport mensuel -->
+        <record id="mail_template_monthly_report" model="mail.template">
+            <field name="name">HuriMoney - Rapport Mensuel</field>
+            <field name="model_id" ref="model_hurimoney_concessionnaire"/>
+            <field name="subject">Votre rapport mensuel HuriMoney - ${object.name}</field>
+            <field name="email_from">${(object.company_id.email or user.email)|safe}</field>
+            <field name="email_to">${object.email|safe}</field>
+            <field name="body_html" type="html">
+<div style="font-family: 'Lucida Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 14px; color: #333;">
+    <h2 style="color: #00529B;">Rapport Mensuel HuriMoney</h2>
+    
+    <p>Cher(e) ${object.name},</p>
+    
+    <p>Voici votre performance du mois:</p>
+    
+    <table style="border-collapse: collapse; width: 100%;">
+        <tr>
+            <td style="border: 1px solid #ddd; padding: 8px;"><strong>Transactions totales:</strong></td>
+            <td style="border: 1px solid #ddd; padding: 8px;">${object.monthly_transactions}</td>
+        </tr>
+        <tr>
+            <td style="border: 1px solid #ddd; padding: 8px;"><strong>Volume mensuel:</strong></td>
+            <td style="border: 1px solid #ddd; padding: 8px;">${object.monthly_volume} KMF</td>
+        </tr>
+        <tr>
+            <td style="border: 1px solid #ddd; padding: 8px;"><strong>Score de performance:</strong></td>
+            <td style="border: 1px solid #ddd; padding: 8px;">${object.performance_score}%</td>
+        </tr>
+        <tr>
+            <td style="border: 1px solid #ddd; padding: 8px;"><strong>Classement:</strong></td>
+            <td style="border: 1px solid #ddd; padding: 8px;">#${object.ranking}</td>
+        </tr>
+    </table>
+    
+    % if object.performance_score >= 80:
+    <p style="color: green;"><strong>Félicitations!</strong> Excellente performance ce mois-ci!</p>
+    % elif object.performance_score >= 50:
+    <p style="color: orange;">Bonne performance! Continuez vos efforts pour atteindre le niveau supérieur.</p>
+    % else:
+    <p style="color: red;">Votre performance peut être améliorée. Contactez votre agent pour du support.</p>
+    % endif
+    
+    <p>Cordialement,<br/>
+    L'équipe HuriMoney</p>
+</div>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,14 @@
+.o_field_performance_gauge {
+    .performance-gauge {
+        .progress {
+            font-size: 14px;
+            font-weight: bold;
+            
+            .progress-bar {
+                transition: width 0.6s ease;
+                text-align: center;
+                line-height: 20px;
+            }
+        }
+    }
+}

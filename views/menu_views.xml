@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menu principal -->
+    <menuitem id="menu_hurimoney_root"
+              name="HuriMoney"
+              sequence="10"
+              web_icon="hurimoney_concessionnaires,static/description/icon.png"/>
+    
+    <!-- Dashboard -->
+    <menuitem id="menu_hurimoney_dashboard"
+              name="Dashboard"
+              parent="menu_hurimoney_root"
+              action="action_hurimoney_dashboard"
+              sequence="10"/>
+    
+    <!-- Opérations -->
+    <menuitem id="menu_hurimoney_operations"
+              name="Opérations"
+              parent="menu_hurimoney_root"
+              sequence="20"/>
+    
+    <menuitem id="menu_hurimoney_concessionnaires"
+              name="Concessionnaires"
+              parent="menu_hurimoney_operations"
+              action="action_hurimoney_concessionnaire"
+              sequence="10"/>
+    
+    <menuitem id="menu_hurimoney_transactions"
+              name="Transactions"
+              parent="menu_hurimoney_operations"
+              action="action_hurimoney_transaction"
+              sequence="20"/>
+    
+    <menuitem id="menu_hurimoney_kits"
+              name="Kits"
+              parent="menu_hurimoney_operations"
+              action="action_hurimoney_kit"
+              sequence="30"/>
+    
+    <!-- Configuration -->
+    <menuitem id="menu_hurimoney_config"
+              name="Configuration"
+              parent="menu_hurimoney_root"
+              sequence="90"
+              groups="base.group_system"/>
+    
+    <menuitem id="menu_wakati_config"
+              name="API WAKATI"
+              parent="menu_hurimoney_config"
+              action="action_wakati_connector"
+              sequence="10"/>
+    
+    <menuitem id="menu_hurimoney_import"
+              name="Import de données"
+              parent="menu_hurimoney_config"
+              action="action_hurimoney_import_wizard"
+              sequence="20"/>
+</odoo>

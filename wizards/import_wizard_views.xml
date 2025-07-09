@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hurimoney_import_wizard" model="ir.ui.view">
+        <field name="name">hurimoney.import.wizard.form</field>
+        <field name="model">hurimoney.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import de données HuriMoney">
+                <group invisible="imported_count == 0 and error_count == 0">
+                    <group string="Type d'import">
+                        <field name="import_type" widget="radio" options="{'horizontal': True}"/>
+                    </group>
+                    <group string="Fichier">
+                        <field name="file" filename="filename" widget="binary"/>
+                        <field name="filename" invisible="1"/>
+                        <field name="delimiter" invisible="import_type == 'json'"/>
+                    </group>
+                </group>
+                <group invisible="imported_count > 0 or error_count > 0">
+                    <group string="Résultats">
+                        <field name="imported_count"/>
+                        <field name="error_count"/>
+                    </group>
+                    <group string="Journal des erreurs" invisible="error_count == 0">
+                        <field name="error_log" nolabel="1" readonly="1"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_import" string="Importer" type="object" class="btn-primary" invisible="imported_count > 0 or error_count > 0"/>
+                    <button string="Fermer" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hurimoney_import_wizard" model="ir.actions.act_window">
+        <field name="name">Import de données</field>
+        <field name="res_model">hurimoney.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

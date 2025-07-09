@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Agents commerciaux de démonstration -->
+        <record id="user_agent_1" model="res.users">
+            <field name="name">Agent Moroni</field>
+            <field name="login">agent.moroni</field>
+            <field name="email">agent.moroni@hurimoney.km</field>
+            <field name="groups_id" eval="[(4, ref('hurimoney_concessionnaires.group_hurimoney_user'))]"/>
+        </record>
+        
+        <record id="user_agent_2" model="res.users">
+            <field name="name">Agent Mutsamudu</field>
+            <field name="login">agent.mutsamudu</field>
+            <field name="email">agent.mutsamudu@hurimoney.km</field>
+            <field name="groups_id" eval="[(4, ref('hurimoney_concessionnaires.group_hurimoney_user'))]"/>
+        </record>
+        
+        <!-- Partenaires de démonstration -->
+        <record id="partner_conc_1" model="res.partner">
+            <field name="name">Ali Mohamed</field>
+            <field name="phone">+269 321 12 34</field>
+            <field name="email">ali.mohamed@example.km</field>
+            <field name="street">Rue du Commerce</field>
+            <field name="city">Moroni</field>
+            <field name="country_id" ref="base.km"/>
+        </record>
+        
+        <record id="partner_conc_2" model="res.partner">
+            <field name="name">Fatima Said</field>
+            <field name="phone">+269 321 56 78</field>
+            <field name="email">fatima.said@example.km</field>
+            <field name="street">Avenue de la Liberté</field>
+            <field name="city">Mutsamudu</field>
+            <field name="country_id" ref="base.km"/>
+        </record>
+        
+        <record id="partner_conc_3" model="res.partner">
+            <field name="name">Ibrahim Abdou</field>
+            <field name="phone">+269 321 90 12</field>
+            <field name="email">ibrahim.abdou@example.km</field>
+            <field name="street">Place du Marché</field>
+            <field name="city">Fomboni</field>
+            <field name="country_id" ref="base.km"/>
+        </record>
+        
+        <!-- Concessionnaires de démonstration -->
+        <record id="conc_demo_1" model="hurimoney.concessionnaire">
+            <field name="partner_id" ref="partner_conc_1"/>
+            <field name="name">Ali Mohamed</field>
+            <field name="phone">+269 321 12 34</field>
+            <field name="email">ali.mohamed@example.km</field>
+            <field name="zone">moroni</field>
+            <field name="agent_id" ref="user_agent_1"/>
+            <field name="state">active</field>
+            <field name="activation_date" eval="(datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')"/>
+            <field name="street">Rue du Commerce</field>
+            <field name="city">Moroni</field>
+            <field name="latitude">-11.7172</field>
+            <field name="longitude">43.2473</field>
+        </record>
+        
+        <record id="conc_demo_2" model="hurimoney.concessionnaire">
+            <field name="partner_id" ref="partner_conc_2"/>
+            <field name="name">Fatima Said</field>
+            <field name="phone">+269 321 56 78</field>
+            <field name="email">fatima.said@example.km</field>
+            <field name="zone">mutsamudu</field>
+            <field name="agent_id" ref="user_agent_2"/>
+            <field name="state">active</field>
+            <field name="activation_date" eval="(datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')"/>
+            <field name="street">Avenue de la Liberté</field>
+            <field name="city">Mutsamudu</field>
+            <field name="latitude">-12.1697</field>
+            <field name="longitude">44.3987</field>
+        </record>
+        
+        <record id="conc_demo_3" model="hurimoney.concessionnaire">
+            <field name="partner_id" ref="partner_conc_3"/>
+            <field name="name">Ibrahim Abdou</field>
+            <field name="phone">+269 321 90 12</field>
+            <field name="email">ibrahim.abdou@example.km</field>
+            <field name="zone">fomboni</field>
+            <field name="agent_id" ref="user_agent_1"/>
+            <field name="state">suspended</field>
+            <field name="activation_date" eval="(datetime.now() - timedelta(days=120)).strftime('%Y-%m-%d')"/>
+            <field name="suspension_date" eval="(datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')"/>
+            <field name="street">Place du Marché</field>
+            <field name="city">Fomboni</field>
+            <field name="latitude">-12.2808</field>
+            <field name="longitude">43.7425</field>
+        </record>
+        
+        <!-- Kits de démonstration -->
+        <record id="kit_demo_1" model="hurimoney.kit">
+            <field name="serial_number">KIT-2024-001</field>
+            <field name="concessionnaire_id" ref="conc_demo_1"/>
+            <field name="kit_type">premium</field>
+            <field name="phone_model">Samsung Galaxy A14</field>
+            <field name="phone_imei">123456789012345</field>
+            <field name="phone_cost">150000</field>
+            <field name="kit_cost">25000</field>
+            <field name="delivery_date" eval="(datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')"/>
+            <field name="activation_date" eval="(datetime.now() - timedelta(days=88)).strftime('%Y-%m-%d')"/>
+            <field name="state">active</field>
+            <field name="deposit_amount">50000</field>
+            <field name="deposit_paid">True</field>
+        </record>
+        
+        <record id="kit_demo_2" model="hurimoney.kit">
+            <field name="serial_number">KIT-2024-002</field>
+            <field name="concessionnaire_id" ref="conc_demo_2"/>
+            <field name="kit_type">standard</field>
+            <field name="phone_model">Tecno Spark 10</field>
+            <field name="phone_imei">234567890123456</field>
+            <field name="phone_cost">120000</field>
+            <field name="kit_cost">20000</field>
+            <field name="delivery_date" eval="(datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')"/>
+            <field name="activation_date" eval="(datetime.now() - timedelta(days=58)).strftime('%Y-%m-%d')"/>
+            <field name="state">active</field>
+            <field name="deposit_amount">40000</field>
+            <field name="deposit_paid">True</field>
+        </record>
+        
+        <!-- Transactions de démonstration -->
+        <record id="trans_demo_1" model="hurimoney.transaction">
+            <field name="concessionnaire_id" ref="conc_demo_1"/>
+            <field name="transaction_date" eval="datetime.now()"/>
+            <field name="transaction_type">deposit</field>
+            <field name="amount">50000</field>
+            <field name="commission_rate">2.0</field>
+            <field name="customer_name">Client Test 1</field>
+            <field name="customer_phone">+269 777 11 11</field>
+            <field name="state">done</field>
+        </record>
+        
+        <record id="trans_demo_2" model="hurimoney.transaction">
+            <field name="concessionnaire_id" ref="conc_demo_1"/>
+            <field name="transaction_date" eval="(datetime.now() - timedelta(hours=2))"/>
+            <field name="transaction_type">withdrawal</field>
+            <field name="amount">30000</field>
+            <field name="commission_rate">1.5</field>
+            <field name="customer_name">Client Test 2</field>
+            <field name="customer_phone">+269 777 22 22</field>
+            <field name="state">done</field>
+        </record>
+        
+        <record id="trans_demo_3" model="hurimoney.transaction">
+            <field name="concessionnaire_id" ref="conc_demo_2"/>
+            <field name="transaction_date" eval="datetime.now()"/>
+            <field name="transaction_type">transfer</field>
+            <field name="amount">100000</field>
+            <field name="commission_rate">2.5</field>
+            <field name="customer_name">Client Test 3</field>
+            <field name="customer_phone">+269 777 33 33</field>
+            <field name="state">done</field>
+        </record>
+        
+        <!-- Configuration WAKATI de démonstration -->
+        <record id="wakati_config_demo" model="wakati.api.connector">
+            <field name="api_base_url">https://api.wakati.com/v1</field>
+            <field name="api_key">demo_api_key_123456</field>
+            <field name="api_secret">demo_api_secret_789012</field>
+            <field name="auto_sync">False</field>
+            <field name="sync_interval">4</field>
+        </record>
+    </data>
+</odoo>

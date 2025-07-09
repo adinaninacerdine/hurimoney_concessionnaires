@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Catégorie de module -->
+        <record model="ir.module.category" id="module_category_hurimoney">
+            <field name="name">HuriMoney</field>
+            <field name="description">Gestion des concessionnaires HuriMoney</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Groupes -->
+        <record id="group_hurimoney_user" model="res.groups">
+            <field name="name">Utilisateur HuriMoney</field>
+            <field name="category_id" ref="module_category_hurimoney"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="group_hurimoney_manager" model="res.groups">
+            <field name="name">Manager HuriMoney</field>
+            <field name="category_id" ref="module_category_hurimoney"/>
+            <field name="implied_ids" eval="[(4, ref('group_hurimoney_user'))]"/>
+        </record>
+
+        <record id="group_hurimoney_admin" model="res.groups">
+            <field name="name">Administrateur HuriMoney</field>
+            <field name="category_id" ref="module_category_hurimoney"/>
+            <field name="implied_ids" eval="[(4, ref('group_hurimoney_manager'))]"/>
+        </record>
+
+        <!-- Règles d'accès -->
+        <record id="hurimoney_concessionnaire_rule_user" model="ir.rule">
+            <field name="name">Concessionnaire: utilisateur voit les siens</field>
+            <field name="model_id" ref="model_hurimoney_concessionnaire"/>
+            <field name="domain_force">[('agent_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hurimoney_user'))]"/>
+        </record>
+
+        <record id="hurimoney_concessionnaire_rule_manager" model="ir.rule">
+            <field name="name">Concessionnaire: manager voit tout</field>
+            <field name="model_id" ref="model_hurimoney_concessionnaire"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_hurimoney_manager'))]"/>
+        </record>
+
+        <record id="hurimoney_transaction_rule_user" model="ir.rule">
+            <field name="name">Transaction: utilisateur voit ses concessionnaires</field>
+            <field name="model_id" ref="model_hurimoney_transaction"/>
+            <field name="domain_force">[('concessionnaire_id.agent_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hurimoney_user'))]"/>
+        </record>
+
+        <record id="hurimoney_transaction_rule_manager" model="ir.rule">
+            <field name="name">Transaction: manager voit tout</field>
+            <field name="model_id" ref="model_hurimoney_transaction"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_hurimoney_manager'))]"/>
+        </record>
+    </data>
+</odoo>

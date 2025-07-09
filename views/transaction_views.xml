@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vue Formulaire -->
+    <record id="view_hurimoney_transaction_form" model="ir.ui.view">
+        <field name="name">hurimoney.transaction.form</field>
+        <field name="model">hurimoney.transaction</field>
+        <field name="arch" type="xml">
+            <form string="Transaction">
+                <header>
+                    <button name="action_confirm" string="Confirmer" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_done" string="Valider" type="object" class="btn-primary" invisible="state != 'pending'"/>
+                    <button name="action_cancel" string="Annuler" type="object" invisible="state not in ['draft', 'pending']"/>
+                    <button name="action_retry" string="Réessayer" type="object" class="btn-warning" invisible="state != 'failed'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,pending,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Informations générales">
+                            <field name="concessionnaire_id"/>
+                            <field name="transaction_date"/>
+                            <field name="transaction_type"/>
+                            <field name="external_id" readonly="1"/>
+                        </group>
+                        <group string="Montants">
+                            <field name="amount" widget="monetary"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="commission_rate"/>
+                            <field name="commission" widget="monetary"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Client">
+                            <field name="customer_name"/>
+                            <field name="customer_phone" widget="phone"/>
+                        </group>
+                        <group string="Notes">
+                            <field name="notes" nolabel="1" placeholder="Notes sur cette transaction..."/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vue Tree -->
+    <record id="view_hurimoney_transaction_tree" model="ir.ui.view">
+        <field name="name">hurimoney.transaction.tree</field>
+        <field name="model">hurimoney.transaction</field>
+        <field name="arch" type="xml">
+            <tree string="Transactions" multi_edit="1">
+                <field name="name"/>
+                <field name="concessionnaire_id"/>
+                <field name="transaction_date"/>
+                <field name="transaction_type"/>
+                <field name="customer_name"/>
+                <field name="amount" widget="monetary" sum="Total"/>
+                <field name="commission" widget="monetary" sum="Total"/>
+                <field name="state" widget="badge" decoration-success="state == 'done'" decoration-warning="state == 'pending'" decoration-danger="state in ['cancelled', 'failed']"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Vue Search -->
+    <record id="view_hurimoney_transaction_search" model="ir.ui.view">
+        <field name="name">hurimoney.transaction.search</field>
+        <field name="model">hurimoney.transaction</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher transactions">
+                <field name="name"/>
+                <field name="concessionnaire_id"/>
+                <field name="customer_name"/>
+                <field name="customer_phone"/>
+                <filter name="today" string="Aujourd'hui" domain="[('transaction_date', '>=', (context_today()).strftime('%%Y-%%m-%%d'))]"/>
+                <filter name="week" string="Cette semaine" domain="[('transaction_date', '>=', (context_today() - datetime.timedelta(days=7)).strftime('%%Y-%%m-%%d'))]"/>
+                <filter name="month" string="Ce mois" domain="[('transaction_date', '>=', (context_today()).strftime('%%Y-%%m-01'))]"/>
+                <separator/>
+                <filter name="deposits" string="Dépôts" domain="[('transaction_type', '=', 'deposit')]"/>
+                <filter name="withdrawals" string="Retraits" domain="[('transaction_type', '=', 'withdrawal')]"/>
+                <filter name="transfers" string="Transferts" domain="[('transaction_type', '=', 'transfer')]"/>
+                <filter name="payments" string="Paiements" domain="[('transaction_type', '=', 'payment')]"/>
+                <separator/>
+                <filter name="done" string="Effectuées" domain="[('state', '=', 'done')]"/>
+                <filter name="pending" string="En attente" domain="[('state', '=', 'pending')]"/>
+                <filter name="failed" string="Échouées" domain="[('state', '=', 'failed')]"/>
+                <group expand="0" string="Grouper par">
+                    <filter name="group_by_concessionnaire" string="Concessionnaire" domain="[]" context="{'group_by': 'concessionnaire_id'}"/>
+                    <filter name="group_by_type" string="Type" domain="[]" context="{'group_by': 'transaction_type'}"/>
+                    <filter name="group_by_state" string="État" domain="[]" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_date" string="Date" domain="[]" context="{'group_by': 'transaction_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vue Pivot -->
+    <record id="view_hurimoney_transaction_pivot" model="ir.ui.view">
+        <field name="name">hurimoney.transaction.pivot</field>
+        <field name="model">hurimoney.transaction</field>
+        <field name="arch" type="xml">
+            <pivot string="Analyse des transactions">
+                <field name="concessionnaire_id" type="row"/>
+                <field name="transaction_type" type="col"/>
+                <field name="amount" type="measure"/>
+                <field name="commission" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Vue Graph -->
+    <record id="view_hurimoney_transaction_graph" model="ir.ui.view">
+        <field name="name">hurimoney.transaction.graph</field>
+        <field name="model">hurimoney.transaction</field>
+        <field name="arch" type="xml">
+            <graph string="Évolution des transactions">
+                <field name="transaction_date" type="row" interval="day"/>
+                <field name="amount" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_hurimoney_transaction" model="ir.actions.act_window">
+        <field name="name">Transactions</field>
+        <field name="res_model">hurimoney.transaction</field>
+        <field name="view_mode">tree,form,pivot,graph</field>
+        <field name="search_view_id" ref="view_hurimoney_transaction_search"/>
+        <field name="context">{'search_default_today': 1, 'search_default_done': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune transaction trouvée
+            </p>
+            <p>
+                Les transactions sont généralement créées automatiquement via l'API WAKATI.
+            </p>
+        </field>
+    </record>
+</odoo>
