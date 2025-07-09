@@ -29,10 +29,10 @@ su - odoo -c "python3 -m venv /opt/odoo/venv"
 # Create custom addons folder
 su - odoo -c "mkdir /opt/odoo/extra-addons"
 
-# Copy your module
-mkdir -p /opt/odoo/extra-addons/hurimoney_concessionnaires
-cp -r ./* /opt/odoo/extra-addons/hurimoney_concessionnaires/
-chown -R odoo:odoo /opt/odoo/extra-addons/
+# Clone your custom module from Git
+# !!! IMPORTANT: Replace this URL with your actual private repository URL
+# For private repos, you'll need to handle authentication (e.g., with a deploy key or token)
+su - odoo -c "git clone URL_DE_VOTRE_DEPOT_GIT /opt/odoo/extra-addons/hurimoney_concessionnaires"
 
 # Create Odoo config file
 cat <<EOF > /etc/odoo.conf
