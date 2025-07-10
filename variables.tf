@@ -12,3 +12,9 @@ variable "ssh_key_name" {
   description = "The name of your SSH key pair in AWS."
   type        = string
 }
+
+variable "allowed_ssh_cidr" {
+  description = "CIDR block allowed to SSH to the instance."
+  type        = string
+  default     = "0.0.0.0/0"
+}

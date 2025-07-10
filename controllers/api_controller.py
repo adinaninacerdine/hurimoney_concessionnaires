@@ -48,26 +48,29 @@ class HuriMoneyAPIController(http.Controller):
             concessionnaire = request.env['hurimoney.concessionnaire'].search([
                 ('code', '=', kwargs['concessionnaire_code'])
             ], limit=1)
-        
-        if not concessionnaire:
-            return {'success': False, 'error': f"Concessionnaire non trouvé avec le code {kwargs['concessionnaire_code']}"}
+            
+            if not concessionnaire:
+                return {'success': False, 'error': f"Concessionnaire non trouvé avec le code {kwargs['concessionnaire_code']}"}
 
-        try:
-            new_transaction = request.env['hurimoney.transaction'].create({
-                'concessionnaire_id': concessionnaire.id,
-                'transaction_date': datetime.now(),
-                'transaction_type': kwargs.get('transaction_type'),
-                'amount': kwargs.get('amount'),
-                'customer_name': kwargs.get('customer_name'),
-                'customer_phone': kwargs.get('customer_phone'),
-                'external_id': kwargs.get('external_id'),
-                'state': 'done',
-            })
-            return {
-                'success': True,
-                'transaction_id': new_transaction.id,
-                'reference': new_transaction.name
-            }
+            try:
+                new_transaction = request.env['hurimoney.transaction'].create({
+                    'concessionnaire_id': concessionnaire.id,
+                    'transaction_date': datetime.now(),
+                    'transaction_type': kwargs.get('transaction_type'),
+                    'amount': kwargs.get('amount'),
+                    'customer_name': kwargs.get('customer_name'),
+                    'customer_phone': kwargs.get('customer_phone'),
+                    'external_id': kwargs.get('external_id'),
+                    'state': 'done',
+                })
+                return {
+                    'success': True,
+                    'transaction_id': new_transaction.id,
+                    'reference': new_transaction.name
+                }
+            except Exception as e:
+                _logger.error(f"Erreur API create_transaction: {str(e)}")
+                return {'success': False, 'error': str(e)}
         except Exception as e:
             _logger.error(f"Erreur API create_transaction: {str(e)}")
             return {'success': False, 'error': str(e)}

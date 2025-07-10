@@ -2,8 +2,23 @@ provider "aws" {
   region = var.aws_region
 }
 
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  owners      = ["099720109477"] # Canonical
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
 resource "aws_instance" "odoo_server" {
-  ami           = "ami-0c55b159cbfafe1f0" # Ubuntu 22.04 LTS
+  ami           = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
 
   tags = {
@@ -31,7 +46,7 @@ resource "aws_security_group" "odoo_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.allowed_ssh_cidr]
   }
 
   egress {

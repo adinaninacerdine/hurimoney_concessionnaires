@@ -2,7 +2,7 @@
 import json
 import jwt
 from datetime import datetime, timedelta
-from odoo import http
+from odoo import http, fields
 from odoo.http import request
 
 class MobileAPIController(http.Controller):
