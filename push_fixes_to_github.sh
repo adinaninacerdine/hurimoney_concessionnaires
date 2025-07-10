@@ -1,3 +1,75 @@
+#!/bin/bash
+
+echo "🔄 Synchronisation des corrections avec GitHub..."
+
+# Corriger le manifest local pour supprimer web_map et dépendances externes
+cat > __manifest__.py << 'MANIFEST_EOF'
+# -*- coding: utf-8 -*-
+{
+    'name': 'HuriMoney Concessionnaires',
+    'version': '18.0.1.0.0',
+    'category': 'Sales',
+    'summary': 'Gestion des concessionnaires HuriMoney',
+    'description': """
+        Module de gestion des concessionnaires HuriMoney
+        ================================================
+        
+        Fonctionnalités:
+        - Gestion des concessionnaires et leurs informations
+        - Suivi des kits et téléphones distribués
+        - Enregistrement des transactions
+        - Dashboard et rapports de performance
+        - Géolocalisation des concessionnaires
+    """,
+    'author': 'HuriMoney',
+    'website': 'https://www.hurimoney.com',
+    'depends': [
+        'base',
+        'mail',
+        'contacts',
+        'base_geolocalize',
+    ],
+    'data': [
+        # Security
+        'security/hurimoney_security.xml',
+        'security/ir.model.access.csv',
+        
+        # Data
+        'data/sequence_data.xml',
+        
+        # Views
+        'views/menu_views.xml',
+        'views/concessionnaire_views.xml',
+        'views/kit_views.xml',
+        'views/transaction_views.xml',
+        'views/dashboard_views.xml',
+    ],
+    'installable': True,
+    'application': True,
+    'auto_install': False,
+    'license': 'LGPL-3',
+}
+MANIFEST_EOF
+
+# Corriger models/__init__.py pour exclure sms_integration
+cat > models/__init__.py << 'INIT_EOF'
+from . import concessionnaire
+from . import kit
+from . import transaction
+from . import dashboard
+from . import res_config_settings
+from . import wakati_connector
+INIT_EOF
+
+# Neutraliser sms_integration.py
+cat > models/sms_integration.py << 'SMS_EOF'
+# -*- coding: utf-8 -*-
+# Module SMS désactivé - dépendances externes non disponibles
+# Pour activer, installer: pip install twilio
+SMS_EOF
+
+# Corriger api_controller.py pour éviter les erreurs f-string
+cat > controllers/api_controller.py << 'PYTHON_EOF'
 # -*- coding: utf-8 -*-
 import json
 import logging
@@ -70,3 +142,11 @@ class HuriMoneyAPIController(http.Controller):
         except Exception as e:
             _logger.error("Erreur API create_transaction: %s", str(e))
             return {'success': False, 'error': str(e)}
+PYTHON_EOF
+
+echo "✅ Fichiers corrigés localement"
+echo ""
+echo "📋 Pour pousser vers GitHub:"
+echo "git add ."
+echo "git commit -m 'fix: Remove external dependencies and syntax errors'"
+echo "git push origin main"

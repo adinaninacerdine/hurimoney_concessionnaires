@@ -57,11 +57,17 @@ su - odoo -c "python3 -m venv /opt/odoo/venv"
 # Upgrade pip and install wheel first
 /opt/odoo/venv/bin/pip install --upgrade pip setuptools wheel
 
+# Install compilation dependencies for gevent
+apt-get install -y libevent-dev libssl-dev
+
 # Install numpy and scipy first (pandas dependencies)
 /opt/odoo/venv/bin/pip install numpy scipy
 
-# Install Odoo requirements
-/opt/odoo/venv/bin/pip install -r /opt/odoo/odoo/requirements.txt
+# Install gevent separately to avoid compilation issues
+/opt/odoo/venv/bin/pip install --only-binary=all gevent || /opt/odoo/venv/bin/pip install gevent==21.12.0
+
+# Install Odoo requirements (excluding problematic packages)
+/opt/odoo/venv/bin/pip install -r /opt/odoo/odoo/requirements.txt --ignore-installed gevent
 
 # Install pandas separately with no-deps to avoid conflicts
 /opt/odoo/venv/bin/pip install pandas --no-deps
