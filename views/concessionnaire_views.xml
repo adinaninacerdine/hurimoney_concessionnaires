@@ -11,7 +11,6 @@
                     <button name="action_suspend" string="Suspendre" type="object" class="btn-warning" invisible="state != 'active'"/>
                     <button name="action_reactivate" string="Réactiver" type="object" class="btn-primary" invisible="state != 'suspended'"/>
                     <button name="action_deactivate" string="Désactiver" type="object" class="btn-danger" invisible="state == 'inactive'"/>
-                    <button name="action_geocode" string="Géolocaliser" type="object" class="btn-secondary"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,active,suspended,inactive"/>
                 </header>
                 <sheet>
@@ -44,16 +43,16 @@
                         </group>
                         <group string="Performance">
                             <field name="performance_score" widget="percentage"/>
-                            <field name="ranking"/>
                             <field name="daily_transactions"/>
                             <field name="weekly_transactions"/>
+                            <field name="monthly_transactions"/>
                             <field name="monthly_volume" widget="monetary"/>
                         </group>
                     </group>
                     <notebook>
-                        <page string="Adresse &amp; Localisation" name="location">
+                        <page string="Adresse" name="address">
                             <group>
-                                <group string="Adresse">
+                                <group string="Adresse postale">
                                     <field name="street" placeholder="Rue..."/>
                                     <field name="street2"/>
                                     <field name="city" placeholder="Ville"/>
@@ -61,34 +60,33 @@
                                     <field name="zip" placeholder="Code postal"/>
                                     <field name="country_id" options="{'no_create': True}"/>
                                 </group>
-                                <group string="Géolocalisation">
+                                <group string="Coordonnées GPS">
                                     <field name="latitude"/>
                                     <field name="longitude"/>
-                                    <field name="address_complete"/>
                                 </group>
                             </group>
                         </page>
                         <page string="Transactions" name="transactions">
                             <field name="transaction_ids" readonly="1">
-                                <tree>
+                                <list>
                                     <field name="name"/>
                                     <field name="transaction_date"/>
                                     <field name="transaction_type"/>
                                     <field name="amount" widget="monetary"/>
                                     <field name="commission" widget="monetary"/>
                                     <field name="state" widget="badge" decoration-success="state == 'done'" decoration-warning="state == 'pending'" decoration-danger="state == 'failed'"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="Kits" name="kits">
                             <field name="kit_ids">
-                                <tree>
+                                <list>
                                     <field name="serial_number"/>
                                     <field name="kit_type"/>
                                     <field name="phone_model"/>
                                     <field name="delivery_date"/>
                                     <field name="state" widget="badge"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="Notes" name="notes">
@@ -101,12 +99,12 @@
         </field>
     </record>
 
-    <!-- Vue Tree -->
-    <record id="view_hurimoney_concessionnaire_tree" model="ir.ui.view">
-        <field name="name">hurimoney.concessionnaire.tree</field>
+    <!-- Vue Liste -->
+    <record id="view_hurimoney_concessionnaire_list" model="ir.ui.view">
+        <field name="name">hurimoney.concessionnaire.list</field>
         <field name="model">hurimoney.concessionnaire</field>
         <field name="arch" type="xml">
-            <tree string="Concessionnaires" multi_edit="1">
+            <list string="Concessionnaires" multi_edit="1">
                 <field name="code"/>
                 <field name="name"/>
                 <field name="phone" widget="phone"/>
@@ -116,7 +114,7 @@
                 <field name="monthly_volume" widget="monetary" sum="Total"/>
                 <field name="performance_score" widget="percentage"/>
                 <field name="state" widget="badge" decoration-success="state == 'active'" decoration-warning="state == 'suspended'" decoration-danger="state == 'inactive'"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -137,6 +135,7 @@
                 <filter name="my_concessionnaires" string="Mes concessionnaires" domain="[('agent_id', '=', uid)]"/>
                 <separator/>
                 <filter name="top_performers" string="Top performers" domain="[('performance_score', '>', 80)]"/>
+                <filter name="low_performers" string="Faible performance" domain="[('performance_score', '<', 30)]"/>
                 <group expand="0" string="Grouper par">
                     <filter name="group_by_zone" string="Zone" domain="[]" context="{'group_by': 'zone'}"/>
                     <filter name="group_by_agent" string="Agent" domain="[]" context="{'group_by': 'agent_id'}"/>
@@ -188,16 +187,30 @@
         </field>
     </record>
 
-    <!-- Vue Map -->
-    <record id="view_hurimoney_concessionnaire_map" model="ir.ui.view">
-        <field name="name">hurimoney.concessionnaire.map</field>
+    <!-- Vue Pivot -->
+    <record id="view_hurimoney_concessionnaire_pivot" model="ir.ui.view">
+        <field name="name">hurimoney.concessionnaire.pivot</field>
         <field name="model">hurimoney.concessionnaire</field>
         <field name="arch" type="xml">
-            <map string="Carte des concessionnaires" res_partner="partner_id" default_order="performance_score desc">
-                <field name="name"/>
-                <field name="performance_score"/>
-                <field name="state"/>
-            </map>
+            <pivot string="Analyse des concessionnaires">
+                <field name="zone" type="row"/>
+                <field name="state" type="col"/>
+                <field name="total_volume" type="measure"/>
+                <field name="total_transactions" type="measure"/>
+                <field name="performance_score" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Vue Graph -->
+    <record id="view_hurimoney_concessionnaire_graph" model="ir.ui.view">
+        <field name="name">hurimoney.concessionnaire.graph</field>
+        <field name="model">hurimoney.concessionnaire</field>
+        <field name="arch" type="xml">
+            <graph string="Performance des concessionnaires" type="bar">
+                <field name="zone"/>
+                <field name="total_volume" type="measure"/>
+            </graph>
         </field>
     </record>
 
@@ -205,7 +218,7 @@
     <record id="action_hurimoney_concessionnaire" model="ir.actions.act_window">
         <field name="name">Concessionnaires</field>
         <field name="res_model">hurimoney.concessionnaire</field>
-        <field name="view_mode">tree,kanban,form,map</field>
+        <field name="view_mode">list,kanban,form,pivot,graph</field>
         <field name="search_view_id" ref="view_hurimoney_concessionnaire_search"/>
         <field name="context">{'search_default_active': 1}</field>
         <field name="help" type="html">

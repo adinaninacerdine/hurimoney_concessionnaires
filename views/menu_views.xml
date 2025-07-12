@@ -6,14 +6,14 @@
               sequence="10"
               web_icon="hurimoney_concessionnaires,static/description/icon.png"/>
     
-    <!-- Dashboard -->
+    <!-- Menu Tableau de bord (vue pivot) -->
     <menuitem id="menu_hurimoney_dashboard"
-              name="Dashboard"
+              name="Tableau de bord"
               parent="menu_hurimoney_root"
-              action="action_hurimoney_dashboard"
+              action="action_hurimoney_concessionnaire"
               sequence="10"/>
     
-    <!-- Opérations -->
+    <!-- Menu Opérations -->
     <menuitem id="menu_hurimoney_operations"
               name="Opérations"
               parent="menu_hurimoney_root"
@@ -37,17 +37,35 @@
               action="action_hurimoney_kit"
               sequence="30"/>
     
-    <!-- Configuration -->
+    <!-- Menu Rapports -->
+    <menuitem id="menu_hurimoney_reports"
+              name="Rapports"
+              parent="menu_hurimoney_root"
+              sequence="30"/>
+    
+    <menuitem id="menu_hurimoney_performance_report"
+              name="Performance"
+              parent="menu_hurimoney_reports"
+              action="action_hurimoney_concessionnaire"
+              sequence="10"/>
+    
+    <menuitem id="menu_hurimoney_transaction_analysis"
+              name="Analyse des transactions"
+              parent="menu_hurimoney_reports"
+              action="action_hurimoney_transaction"
+              sequence="20"/>
+    
+    <!-- Menu Configuration -->
     <menuitem id="menu_hurimoney_config"
               name="Configuration"
               parent="menu_hurimoney_root"
               sequence="90"
               groups="base.group_system"/>
     
-    <menuitem id="menu_wakati_config"
-              name="API WAKATI"
+    <menuitem id="menu_hurimoney_settings"
+              name="Paramètres"
               parent="menu_hurimoney_config"
-              action="action_wakati_connector"
+              action="action_res_config_settings_hurimoney"
               sequence="10"/>
     
     <menuitem id="menu_hurimoney_import"
@@ -55,4 +73,14 @@
               parent="menu_hurimoney_config"
               action="action_hurimoney_import_wizard"
               sequence="20"/>
+    
+    <!-- Action pour ouvrir les paramètres -->
+    <record id="action_res_config_settings_hurimoney" model="ir.actions.act_window">
+        <field name="name">Paramètres HuriMoney</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module' : 'hurimoney_concessionnaires'}</field>
+    </record>
 </odoo>
