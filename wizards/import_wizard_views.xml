@@ -5,18 +5,18 @@
         <field name="model">hurimoney.import.wizard</field>
         <field name="arch" type="xml">
             <form string="Import de données HuriMoney">
-                <group invisible="imported_count == 0 and error_count == 0">
+                <group>
                     <group string="Type d'import">
-                        <field name="import_type" widget="radio" options="{'horizontal': True}"/>
+                        <field name="import_type" widget="radio" options="{'horizontal': true}"/>
                     </group>
                     <group string="Fichier">
                         <field name="file" filename="filename" widget="binary"/>
                         <field name="filename" invisible="1"/>
-                        <field name="delimiter" invisible="import_type == 'json'"/>
+                        <field name="delimiter"/>
                     </group>
                 </group>
-                <group invisible="imported_count > 0 or error_count > 0">
-                    <group string="Résultats">
+                <group string="Résultats" invisible="imported_count == 0 and error_count == 0">
+                    <group>
                         <field name="imported_count"/>
                         <field name="error_count"/>
                     </group>
@@ -25,7 +25,7 @@
                     </group>
                 </group>
                 <footer>
-                    <button name="action_import" string="Importer" type="object" class="btn-primary" invisible="imported_count > 0 or error_count > 0"/>
+                    <button name="action_import" string="Importer" type="object" class="btn-primary"/>
                     <button string="Fermer" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
