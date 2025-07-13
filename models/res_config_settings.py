@@ -54,6 +54,10 @@ class ResConfigSettings(models.TransientModel):
         config_parameter='hurimoney.enable_email',
         default=True
     )
+
+    # API Settings
+    api_url = fields.Char(string='API URL', config_parameter='hurimoney.api_url')
+    api_key = fields.Char(string='API Key', config_parameter='hurimoney.api_key', password=True)
     
     @api.model
     def get_values(self):
@@ -66,6 +70,8 @@ class ResConfigSettings(models.TransientModel):
             hurimoney_performance_threshold=float(params.get_param('hurimoney.performance_threshold', 30.0)),
             hurimoney_inactivity_days=int(params.get_param('hurimoney.inactivity_days', 30)),
             hurimoney_enable_email=params.get_param('hurimoney.enable_email', 'True') == 'True',
+            api_url=params.get_param('hurimoney.api_url'),
+            api_key=params.get_param('hurimoney.api_key'),
         )
         return res
     
@@ -78,3 +84,5 @@ class ResConfigSettings(models.TransientModel):
         params.set_param('hurimoney.performance_threshold', self.hurimoney_performance_threshold)
         params.set_param('hurimoney.inactivity_days', self.hurimoney_inactivity_days)
         params.set_param('hurimoney.enable_email', self.hurimoney_enable_email)
+        params.set_param('hurimoney.api_url', self.api_url)
+        params.set_param('hurimoney.api_key', self.api_key)

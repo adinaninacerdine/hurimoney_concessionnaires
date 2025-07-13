@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
+import boto3
+import json
+import logging
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
+
+_logger = logging.getLogger(__name__)
 
 
 class HuriMoneyTransaction(models.Model):
@@ -23,6 +28,12 @@ class HuriMoneyTransaction(models.Model):
         string='Concessionnaire',
         required=True,
         ondelete='restrict'
+    )
+    
+    customer_id = fields.Many2one(
+        'res.partner',
+        string='Client Final',
+        help="Client final associé à cette transaction."
     )
     
     transaction_date = fields.Datetime(
@@ -95,10 +106,45 @@ class HuriMoneyTransaction(models.Model):
     
     @api.model
     def create(self, vals):
-        if vals.get('name', '/') == '/':
-            vals['name'] = self.env['ir.sequence'].next_by_code('hurimoney.transaction') or '/'
-        return super().create(vals)
-    
+        # First, create the partner if it doesn't exist
+        if vals.get('customer_phone'):
+            Partner = self.env['res.partner']
+            phone = vals.get('customer_phone')
+            partner = Partner.search([('phone', '=', phone)], limit=1)
+            if not partner:
+                partner = Partner.create({
+                    'name': vals.get('customer_name', phone),
+                    'phone': phone,
+                })
+            vals['customer_id'] = partner.id
+
+        rec = super(HuriMoneyTransaction, self).create(vals)
+        rec._send_to_kinesis()
+        return rec
+
+    def _send_to_kinesis(self):
+        try:
+            kinesis_client = boto3.client('kinesis')
+            payload = {
+                'id': self.id,
+                'name': self.name,
+                'transaction_date': self.transaction_date.isoformat(),
+                'transaction_type': self.transaction_type,
+                'amount': self.amount,
+                'commission': self.commission,
+                'customer_name': self.customer_name,
+                'customer_phone': self.customer_phone,
+                'concessionnaire_id': self.concessionnaire_id.id,
+                'state': self.state,
+            }
+            kinesis_client.put_record(
+                StreamName='hurimoney-transactions', # TODO: Make this configurable
+                Data=json.dumps(payload),
+                PartitionKey=str(self.id)
+            )
+        except Exception as e:
+            _logger.error("Failed to send transaction to Kinesis: %s", e)
+
     def action_confirm(self):
         self.ensure_one()
         self.state = 'pending'

@@ -85,10 +85,10 @@
                 <field name="customer_phone"/>
                 <field name="external_id"/>
                 <separator/>
-                <filter name="today" string="Aujourd'hui" domain="[('transaction_date', '>=', (datetime.datetime.now() - datetime.timedelta(days=1)).strftime('%Y-%m-%d 00:00:00'))]"/>
-                <filter name="yesterday" string="Hier" domain="[('transaction_date', '>=', (datetime.datetime.now() - datetime.timedelta(days=2)).strftime('%Y-%m-%d 00:00:00')), ('transaction_date', '<', (datetime.datetime.now() - datetime.timedelta(days=1)).strftime('%Y-%m-%d 00:00:00'))]"/>
-                <filter name="week" string="Cette semaine" domain="[('transaction_date', '>=', (datetime.datetime.now() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
-                <filter name="month" string="Ce mois" domain="[('transaction_date', '>=', (datetime.datetime.now()).strftime('%Y-%m-01'))]"/>
+                <filter name="today" string="Aujourd'hui" domain="[('transaction_date', '&gt;=', (datetime.datetime.now() - datetime.timedelta(days=1)).strftime('%Y-%m-%d 00:00:00'))]"/>
+                <filter name="yesterday" string="Hier" domain="[('transaction_date', '&gt;=', (datetime.datetime.now() - datetime.timedelta(days=2)).strftime('%Y-%m-%d 00:00:00')), ('transaction_date', '&lt;', (datetime.datetime.now() - datetime.timedelta(days=1)).strftime('%Y-%m-%d 00:00:00'))]"/>
+                <filter name="week" string="Cette semaine" domain="[('transaction_date', '&gt;=', (datetime.datetime.now() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                <filter name="month" string="Ce mois" domain="[('transaction_date', '&gt;=', (datetime.datetime.now()).strftime('%Y-%m-01'))]"/>
                 <separator/>
                 <filter name="deposits" string="Dépôts" domain="[('transaction_type', '=', 'deposit')]"/>
                 <filter name="withdrawals" string="Retraits" domain="[('transaction_type', '=', 'withdrawal')]"/>

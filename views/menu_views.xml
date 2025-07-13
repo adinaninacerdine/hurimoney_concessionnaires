@@ -1,5 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Actions spécifiques pour les vues de rapport/tableau de bord -->
+    <record id="action_hurimoney_concessionnaire_pivot" model="ir.actions.act_window">
+        <field name="name">Tableau de bord Concessionnaires</field>
+        <field name="res_model">hurimoney.concessionnaire</field>
+        <field name="view_mode">pivot,graph,list,kanban,form</field>
+        <field name="view_id" ref="view_hurimoney_concessionnaire_pivot"/>
+        <field name="search_view_id" ref="view_hurimoney_concessionnaire_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun concessionnaire trouvé.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_hurimoney_concessionnaire_graph" model="ir.actions.act_window">
+        <field name="name">Performance Concessionnaires</field>
+        <field name="res_model">hurimoney.concessionnaire</field>
+        <field name="view_mode">graph,pivot,list,kanban,form</field>
+        <field name="view_id" ref="view_hurimoney_concessionnaire_graph"/>
+        <field name="search_view_id" ref="view_hurimoney_concessionnaire_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune donnée de performance trouvée.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_hurimoney_transaction_pivot" model="ir.actions.act_window">
+        <field name="name">Analyse des Transactions</field>
+        <field name="res_model">hurimoney.transaction</field>
+        <field name="view_mode">pivot,graph,list,kanban,form</field>
+        <field name="view_id" ref="view_hurimoney_transaction_pivot"/>
+        <field name="search_view_id" ref="view_hurimoney_transaction_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune transaction trouvée.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_hurimoney_transaction_graph" model="ir.actions.act_window">
+        <field name="name">Évolution des Transactions</field>
+        <field name="res_model">hurimoney.transaction</field>
+        <field name="view_mode">graph,pivot,list,kanban,form</field>
+        <field name="view_id" ref="view_hurimoney_transaction_graph"/>
+        <field name="search_view_id" ref="view_hurimoney_transaction_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune donnée d'évolution trouvée.
+            </p>
+        </field>
+    </record>
+
+    <!-- Action pour ouvrir les paramètres -->
+    <record id="action_res_config_settings_hurimoney" model="ir.actions.act_window">
+        <field name="name">Paramètres HuriMoney</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module' : 'hurimoney_concessionnaires'}</field>
+    </record>
+
     <!-- Menu principal -->
     <menuitem id="menu_hurimoney_root"
               name="HuriMoney"
@@ -10,7 +73,7 @@
     <menuitem id="menu_hurimoney_dashboard"
               name="Tableau de bord"
               parent="menu_hurimoney_root"
-              action="action_hurimoney_concessionnaire"
+              action="action_hurimoney_concessionnaire_pivot"
               sequence="10"/>
     
     <!-- Menu Opérations -->
@@ -46,13 +109,13 @@
     <menuitem id="menu_hurimoney_performance_report"
               name="Performance"
               parent="menu_hurimoney_reports"
-              action="action_hurimoney_concessionnaire"
+              action="action_hurimoney_concessionnaire_graph"
               sequence="10"/>
     
     <menuitem id="menu_hurimoney_transaction_analysis"
               name="Analyse des transactions"
               parent="menu_hurimoney_reports"
-              action="action_hurimoney_transaction"
+              action="action_hurimoney_transaction_pivot"
               sequence="20"/>
     
     <!-- Menu Configuration -->
@@ -73,14 +136,4 @@
               parent="menu_hurimoney_config"
               action="action_hurimoney_import_wizard"
               sequence="20"/>
-    
-    <!-- Action pour ouvrir les paramètres -->
-    <record id="action_res_config_settings_hurimoney" model="ir.actions.act_window">
-        <field name="name">Paramètres HuriMoney</field>
-        <field name="type">ir.actions.act_window</field>
-        <field name="res_model">res.config.settings</field>
-        <field name="view_mode">form</field>
-        <field name="target">inline</field>
-        <field name="context">{'module' : 'hurimoney_concessionnaires'}</field>
-    </record>
 </odoo>

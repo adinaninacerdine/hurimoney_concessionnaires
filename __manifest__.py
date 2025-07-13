@@ -35,13 +35,12 @@ pour les services de transfert d'argent mobile.
         'data/sequence_data.xml',
         
         # Views (ordre important)
-        'views/concessionnaire_views.xml',
+        'views/res_config_settings_views.xml',
         'views/kit_views.xml',
         'views/transaction_views.xml',
-        'views/menu_views.xml',
-        
-        # Wizards
+        'views/concessionnaire_views.xml',
         'wizards/import_wizard_views.xml',
+        'views/menu_views.xml',
     ],
     'demo': [],
     'installable': True,

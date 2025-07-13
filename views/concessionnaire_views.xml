@@ -134,8 +134,8 @@
                 <separator/>
                 <filter name="my_concessionnaires" string="Mes concessionnaires" domain="[('agent_id', '=', uid)]"/>
                 <separator/>
-                <filter name="top_performers" string="Top performers" domain="[('performance_score', '>', 80)]"/>
-                <filter name="low_performers" string="Faible performance" domain="[('performance_score', '<', 30)]"/>
+                <filter name="top_performers" string="Top performers" domain="[('performance_score', '&gt;', 80)]"/>
+                <filter name="low_performers" string="Faible performance" domain="[('performance_score', '&lt;', 30)]"/>
                 <group expand="0" string="Grouper par">
                     <filter name="group_by_zone" string="Zone" domain="[]" context="{'group_by': 'zone'}"/>
                     <filter name="group_by_agent" string="Agent" domain="[]" context="{'group_by': 'agent_id'}"/>
