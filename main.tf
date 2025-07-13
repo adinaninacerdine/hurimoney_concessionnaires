@@ -79,9 +79,10 @@ resource "aws_lambda_function" "transaction_processor" {
   handler       = "main.handler"
   runtime       = "python3.9"
   filename      = "lambda.zip"
+}
 
-  event_source_mapping {
-    event_source_arn  = aws_kinesis_stream.transaction_stream.arn
-    starting_position = "LATEST"
-  }
+resource "aws_lambda_event_source_mapping" "kinesis_mapping" {
+  event_source_arn  = aws_kinesis_stream.transaction_stream.arn
+  function_name     = aws_lambda_function.transaction_processor.arn
+  starting_position = "LATEST"
 }
