@@ -84,6 +84,9 @@ class HuriMoneyTransaction(models.Model):
     # Champs pour l'API mobile
     mobile_created = fields.Boolean(string='Créé depuis mobile', default=False)
     
+    # Pas de lien direct avec les ventes pour éviter la surcharge
+    # Les données sont agrégées via la segmentation B2C dans res.partner
+    
     @api.depends('amount', 'commission_rate')
     def _compute_commission(self):
         for record in self:

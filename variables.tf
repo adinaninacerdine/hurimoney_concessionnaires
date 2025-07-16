@@ -1,10 +1,10 @@
 variable "aws_region" {
   description = "The AWS region to create resources in."
-  default     = "us-east-1"
+  default     = "eu-north-1"
 }
 
-variable "mongodb_uri" {
-  description = "MongoDB connection URI"
+variable "documentdb_password" {
+  description = "DocumentDB master password"
   type        = string
   sensitive   = true
 }

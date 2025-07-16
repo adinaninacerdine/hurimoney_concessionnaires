@@ -107,3 +107,45 @@ Client à fort potentiel identifié via HuriMoney:
         })
         
         return opportunity
+    
+    def action_create_accounting_move(self):
+        """Créer une écriture comptable pour ce client B2C"""
+        self.ensure_one()
+        if not self.x_is_high_potential or not self.x_total_amount:
+            return
+        
+        # Créer une facture client pour le volume des transactions
+        invoice = self.env['account.move'].create({
+            'move_type': 'out_invoice',
+            'partner_id': self.id,
+            'invoice_date': fields.Date.today(),
+            'invoice_line_ids': [(0, 0, {
+                'name': f'Services HuriMoney - {self.x_total_transactions} transactions',
+                'quantity': self.x_total_transactions,
+                'price_unit': self.x_avg_transaction * 0.02,  # 2% de commission
+                'account_id': self.env.ref('account.data_account_type_revenue').id,
+            })],
+            'narration': f'Facture générée automatiquement pour client B2C segment {self.x_b2c_segment}'
+        })
+        
+        return invoice
+    
+    @api.model
+    def sync_b2c_segments_batch(self, limit=100):
+        """Synchronisation en batch des segments B2C"""
+        # Récupérer les clients non segmentés ou avec segmentation ancienne
+        customers = self.search([
+            '|', ('x_b2c_segment', '=', False),
+            ('write_date', '<', fields.Datetime.now() - timedelta(days=7))
+        ], limit=limit)
+        
+        for customer in customers:
+            # Recalculer le score et le segment
+            customer._compute_customer_score()
+            customer._compute_high_potential()
+            
+            # Créer automatiquement une opportunité CRM si nécessaire
+            if customer.x_is_high_potential:
+                customer.action_create_crm_opportunity()
+        
+        return len(customers)

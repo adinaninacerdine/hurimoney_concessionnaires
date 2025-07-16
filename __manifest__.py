@@ -25,6 +25,9 @@ pour les services de transfert d'argent mobile.
         'base',
         'mail',
         'contacts',
+        'crm',
+        'account',
+        'sale',
     ],
     'data': [
         # Security

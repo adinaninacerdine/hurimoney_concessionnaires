@@ -2,7 +2,7 @@
 import json
 import logging
 from datetime import datetime
-from odoo import http
+from odoo import http, fields
 from odoo.http import request
 
 _logger = logging.getLogger(__name__)
@@ -219,4 +219,246 @@ class HuriMoneyAPIController(http.Controller):
             }
         except Exception as e:
             _logger.error("Erreur API get_kits: %s", str(e))
+            return {'success': False, 'error': str(e)}
+    
+    @http.route('/api/hurimoney/customers/b2c-segments', type='json', auth='api_key', methods=['GET'], csrf=False)
+    def get_b2c_segments(self, **kwargs):
+        """Récupérer les clients B2C segmentés pour synchronisation CRM"""
+        try:
+            domain = [('x_b2c_segment', '!=', False)]
+            
+            # Filtres optionnels
+            if kwargs.get('segment'):
+                domain.append(('x_b2c_segment', '=', kwargs['segment']))
+            if kwargs.get('min_score'):
+                domain.append(('x_customer_score', '>=', float(kwargs['min_score'])))
+            if kwargs.get('high_potential_only'):
+                domain.append(('x_is_high_potential', '=', True))
+            
+            # Pagination
+            limit = int(kwargs.get('limit', 100))
+            offset = int(kwargs.get('offset', 0))
+            
+            customers = request.env['res.partner'].search(
+                domain,
+                limit=limit,
+                offset=offset,
+                order='x_customer_score desc, x_total_amount desc'
+            )
+            
+            total_count = request.env['res.partner'].search_count(domain)
+            
+            return {
+                'success': True,
+                'data': [{
+                    'id': c.id,
+                    'name': c.name,
+                    'phone': c.phone,
+                    'email': c.email,
+                    'segment': c.x_b2c_segment,
+                    'customer_score': c.x_customer_score,
+                    'total_transactions': c.x_total_transactions,
+                    'total_amount': c.x_total_amount,
+                    'avg_transaction': c.x_avg_transaction,
+                    'first_transaction': c.x_first_transaction.isoformat() if c.x_first_transaction else None,
+                    'last_transaction': c.x_last_transaction.isoformat() if c.x_last_transaction else None,
+                    'is_high_potential': c.x_is_high_potential,
+                    'street': c.street,
+                    'city': c.city,
+                    'country_id': c.country_id.code if c.country_id else None,
+                } for c in customers],
+                'total': total_count,
+                'limit': limit,
+                'offset': offset
+            }
+        except Exception as e:
+            _logger.error("Erreur API get_b2c_segments: %s", str(e))
+            return {'success': False, 'error': str(e)}
+    
+    @http.route('/api/hurimoney/wakati/sync', type='json', auth='api_key', methods=['POST'], csrf=False)
+    def wakati_sync(self, **kwargs):
+        """Synchroniser les données depuis Wakati mobile money"""
+        try:
+            # Traitement par batch des transactions Wakati
+            transactions = kwargs.get('transactions', [])
+            processed_count = 0
+            errors = []
+            
+            for wakati_transaction in transactions:
+                try:
+                    # Mapping des données Wakati vers HuriMoney
+                    transaction_vals = {
+                        'external_id': wakati_transaction.get('wakati_id'),
+                        'customer_phone': wakati_transaction.get('customer_phone'),
+                        'customer_name': wakati_transaction.get('customer_name'),
+                        'amount': float(wakati_transaction.get('amount', 0)),
+                        'transaction_type': wakati_transaction.get('type', 'transfer'),
+                        'transaction_date': wakati_transaction.get('timestamp'),
+                        'reference': wakati_transaction.get('reference'),
+                        'notes': f"Importé depuis Wakati - ID: {wakati_transaction.get('wakati_id')}",
+                        'state': 'done',
+                        'mobile_created': True,
+                    }
+                    
+                    # Trouver ou créer le concessionnaire par défaut pour Wakati
+                    concessionnaire = request.env['hurimoney.concessionnaire'].search([
+                        ('code', '=', 'WAKATI_DEFAULT')
+                    ], limit=1)
+                    
+                    if not concessionnaire:
+                        concessionnaire = request.env['hurimoney.concessionnaire'].create({
+                            'name': 'Wakati Mobile Money',
+                            'code': 'WAKATI_DEFAULT',
+                            'zone': 'DIGITAL',
+                            'state': 'active',
+                            'notes': 'Concessionnaire virtuel pour les transactions Wakati'
+                        })
+                    
+                    transaction_vals['concessionnaire_id'] = concessionnaire.id
+                    
+                    # Vérifier si la transaction existe déjà
+                    existing = request.env['hurimoney.transaction'].search([
+                        ('external_id', '=', transaction_vals['external_id'])
+                    ], limit=1)
+                    
+                    if not existing:
+                        request.env['hurimoney.transaction'].create(transaction_vals)
+                        processed_count += 1
+                    
+                except Exception as e:
+                    errors.append(f"Transaction {wakati_transaction.get('wakati_id')}: {str(e)}")
+                    continue
+            
+            return {
+                'success': True,
+                'processed_count': processed_count,
+                'total_sent': len(transactions),
+                'errors': errors
+            }
+        except Exception as e:
+            _logger.error("Erreur API wakati_sync: %s", str(e))
+            return {'success': False, 'error': str(e)}
+    
+    @http.route('/api/hurimoney/mapsly/geodata', type='json', auth='api_key', methods=['GET'], csrf=False)
+    def mapsly_geodata(self, **kwargs):
+        """API pour Mapsly - données géospatiales des concessionnaires et clients"""
+        try:
+            # Récupérer les concessionnaires avec géolocalisation
+            concessionnaires = request.env['hurimoney.concessionnaire'].search([
+                ('latitude', '!=', 0),
+                ('longitude', '!=', 0),
+                ('state', '=', 'active')
+            ])
+            
+            # Récupérer les clients B2C segmentés avec adresses
+            customers = request.env['res.partner'].search([
+                ('x_b2c_segment', '!=', False),
+                ('x_is_high_potential', '=', True),
+                '|', ('street', '!=', False), ('city', '!=', False)
+            ])
+            
+            # Formatter les données pour Mapsly
+            geojson_features = []
+            
+            # Ajouter les concessionnaires
+            for conc in concessionnaires:
+                geojson_features.append({
+                    'type': 'Feature',
+                    'geometry': {
+                        'type': 'Point',
+                        'coordinates': [conc.longitude, conc.latitude]
+                    },
+                    'properties': {
+                        'id': conc.id,
+                        'type': 'concessionnaire',
+                        'name': conc.name,
+                        'code': conc.code,
+                        'zone': conc.zone,
+                        'performance_score': conc.performance_score,
+                        'daily_transactions': conc.daily_transactions,
+                        'monthly_volume': conc.monthly_volume,
+                        'phone': conc.phone,
+                        'email': conc.email,
+                        'address': f"{conc.street or ''} {conc.city or ''}".strip()
+                    }
+                })
+            
+            # Ajouter les clients B2C
+            for customer in customers:
+                if customer.partner_latitude and customer.partner_longitude:
+                    geojson_features.append({
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [customer.partner_longitude, customer.partner_latitude]
+                        },
+                        'properties': {
+                            'id': customer.id,
+                            'type': 'customer_b2c',
+                            'name': customer.name,
+                            'phone': customer.phone,
+                            'segment': customer.x_b2c_segment,
+                            'customer_score': customer.x_customer_score,
+                            'total_amount': customer.x_total_amount,
+                            'total_transactions': customer.x_total_transactions,
+                            'is_high_potential': customer.x_is_high_potential,
+                            'address': f"{customer.street or ''} {customer.city or ''}".strip()
+                        }
+                    })
+            
+            return {
+                'success': True,
+                'type': 'FeatureCollection',
+                'features': geojson_features,
+                'metadata': {
+                    'total_concessionnaires': len(concessionnaires),
+                    'total_customers': len(customers),
+                    'generated_at': datetime.now().isoformat()
+                }
+            }
+        except Exception as e:
+            _logger.error("Erreur API mapsly_geodata: %s", str(e))
+            return {'success': False, 'error': str(e)}
+    
+    @http.route('/api/hurimoney/analytics/segments', type='json', auth='api_key', methods=['GET'], csrf=False)
+    def analytics_segments(self, **kwargs):
+        """Analytics des segments B2C"""
+        try:
+            # Statistiques par segment
+            segment_stats = {}
+            segments = ['HIGH_VALUE', 'LOYAL', 'NEW', 'AT_RISK', 'OTHER']
+            
+            for segment in segments:
+                customers = request.env['res.partner'].search([
+                    ('x_b2c_segment', '=', segment)
+                ])
+                
+                segment_stats[segment] = {
+                    'count': len(customers),
+                    'total_volume': sum(customers.mapped('x_total_amount')),
+                    'avg_score': sum(customers.mapped('x_customer_score')) / len(customers) if customers else 0,
+                    'high_potential_count': len(customers.filtered('x_is_high_potential'))
+                }
+            
+            # Tendances temporelles
+            last_30_days = fields.Datetime.now() - timedelta(days=30)
+            recent_transactions = request.env['hurimoney.transaction'].search([
+                ('create_date', '>=', last_30_days),
+                ('state', '=', 'done')
+            ])
+            
+            return {
+                'success': True,
+                'segment_stats': segment_stats,
+                'recent_activity': {
+                    'transactions_30d': len(recent_transactions),
+                    'volume_30d': sum(recent_transactions.mapped('amount')),
+                    'new_customers_30d': request.env['res.partner'].search_count([
+                        ('create_date', '>=', last_30_days),
+                        ('x_b2c_segment', '!=', False)
+                    ])
+                }
+            }
+        except Exception as e:
+            _logger.error("Erreur API analytics_segments: %s", str(e))
             return {'success': False, 'error': str(e)}

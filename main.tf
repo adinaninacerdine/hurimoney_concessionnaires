@@ -73,6 +73,60 @@ resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
   })
 }
 
+# Security Group pour DocumentDB
+resource "aws_security_group" "docdb" {
+  name        = "hurimoney-docdb-sg"
+  description = "Security group for DocumentDB cluster"
+
+  ingress {
+    from_port   = 27017
+    to_port     = 27017
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Restreindre en production
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "hurimoney-docdb-sg"
+  }
+}
+
+# DocumentDB Cluster (MongoDB compatible)
+resource "aws_docdb_cluster" "hurimoney_analytics" {
+  cluster_identifier      = "hurimoney-analytics"
+  engine                  = "docdb"
+  master_username         = "hurimoney_admin"
+  master_password         = var.documentdb_password
+  backup_retention_period = 7
+  preferred_backup_window = "07:00-09:00"
+  skip_final_snapshot     = false
+  storage_encrypted       = true
+  
+  vpc_security_group_ids = [aws_security_group.docdb.id]
+
+  tags = {
+    Name = "hurimoney-analytics-cluster"
+  }
+}
+
+# DocumentDB Instance
+resource "aws_docdb_cluster_instance" "hurimoney_analytics_instance" {
+  identifier         = "hurimoney-analytics-1"
+  cluster_identifier = aws_docdb_cluster.hurimoney_analytics.id
+  instance_class     = "db.t3.medium"
+
+  tags = {
+    Name = "hurimoney-analytics-instance"
+  }
+}
+
+# Lambda Function avec DocumentDB
 resource "aws_lambda_function" "transaction_processor" {
   function_name = "hurimoney-transaction-processor"
   role          = aws_iam_role.lambda_exec_role.arn
@@ -83,7 +137,7 @@ resource "aws_lambda_function" "transaction_processor" {
   environment {
     variables = {
       CUSTOMER_TABLE_NAME = aws_dynamodb_table.customer_table.name
-      MONGODB_URI = var.mongodb_uri
+      MONGODB_URI = "mongodb://hurimoney_admin:${var.documentdb_password}@${aws_docdb_cluster.hurimoney_analytics.endpoint}:27017/hurimoney_analytics?ssl=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
       ODOO_API_URL = var.odoo_api_url
       ODOO_API_KEY = var.odoo_api_key
     }
