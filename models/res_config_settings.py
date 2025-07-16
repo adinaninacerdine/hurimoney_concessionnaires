@@ -14,19 +14,17 @@ class ResConfigSettings(models.TransientModel):
     )
     
     # Limites de transaction
-    hurimoney_min_transaction = fields.Monetary(
+    hurimoney_min_transaction = fields.Float(
         string='Transaction minimale',
         config_parameter='hurimoney.min_transaction_amount',
         default=1000.0,
-        currency_field='currency_id',
         help="Montant minimum autorisé pour une transaction"
     )
     
-    hurimoney_max_transaction = fields.Monetary(
+    hurimoney_max_transaction = fields.Float(
         string='Transaction maximale',
         config_parameter='hurimoney.max_transaction_amount',
         default=5000000.0,
-        currency_field='currency_id',
         help="Montant maximum autorisé pour une transaction"
     )
     
@@ -57,7 +55,7 @@ class ResConfigSettings(models.TransientModel):
 
     # API Settings
     api_url = fields.Char(string='API URL', config_parameter='hurimoney.api_url')
-    api_key = fields.Char(string='API Key', config_parameter='hurimoney.api_key', password=True)
+    api_key = fields.Char(string='API Key', config_parameter='hurimoney.api_key')
     
     @api.model
     def get_values(self):
