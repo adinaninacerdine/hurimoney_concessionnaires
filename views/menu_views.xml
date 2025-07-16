@@ -73,7 +73,7 @@
     <menuitem id="menu_hurimoney_dashboard"
               name="Tableau de bord"
               parent="menu_hurimoney_root"
-              action="action_hurimoney_concessionnaire_pivot"
+              action="action_hurimoney_concessionnaire"
               sequence="10"/>
     
     <!-- Menu Opérations -->
@@ -81,6 +81,24 @@
               name="Opérations"
               parent="menu_hurimoney_root"
               sequence="20"/>
+    
+    <menuitem id="menu_hurimoney_concessionnaires"
+              name="Concessionnaires"
+              parent="menu_hurimoney_operations"
+              action="action_hurimoney_concessionnaire"
+              sequence="10"/>
+    
+    <menuitem id="menu_hurimoney_transactions"
+              name="Transactions"
+              parent="menu_hurimoney_operations"
+              action="action_hurimoney_transaction"
+              sequence="20"/>
+    
+    <menuitem id="menu_hurimoney_kits"
+              name="Kits"
+              parent="menu_hurimoney_operations"
+              action="action_hurimoney_kit"
+              sequence="30"/>
     
     <menuitem id="menu_hurimoney_concessionnaires"
               name="Concessionnaires"
@@ -115,7 +133,7 @@
     <menuitem id="menu_hurimoney_transaction_analysis"
               name="Analyse des transactions"
               parent="menu_hurimoney_reports"
-              action="action_hurimoney_transaction_pivot"
+              action="action_hurimoney_transaction"
               sequence="20"/>
     
     <!-- Menu Configuration -->
