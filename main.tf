@@ -79,6 +79,15 @@ resource "aws_lambda_function" "transaction_processor" {
   handler       = "main.handler"
   runtime       = "python3.9"
   filename      = "lambda.zip"
+
+  environment {
+    variables = {
+      CUSTOMER_TABLE_NAME = aws_dynamodb_table.customer_table.name
+      MONGODB_URI = var.mongodb_uri
+      ODOO_API_URL = var.odoo_api_url
+      ODOO_API_KEY = var.odoo_api_key
+    }
+  }
 }
 
 resource "aws_lambda_event_source_mapping" "kinesis_mapping" {
