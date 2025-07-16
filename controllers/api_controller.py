@@ -288,54 +288,56 @@ class HuriMoneyAPIController(http.Controller):
             
             for wakati_transaction in transactions:
                 try:
-                    # Mapping des données Wakati vers HuriMoney
-                    transaction_vals = {
-                        'external_id': wakati_transaction.get('wakati_id'),
-                        'customer_phone': wakati_transaction.get('customer_phone'),
-                        'customer_name': wakati_transaction.get('customer_name'),
-                        'amount': float(wakati_transaction.get('amount', 0)),
-                        'transaction_type': wakati_transaction.get('type', 'transfer'),
-                        'transaction_date': wakati_transaction.get('timestamp'),
-                        'reference': wakati_transaction.get('reference'),
-                        'notes': f"Importé depuis Wakati - ID: {wakati_transaction.get('wakati_id')}",
-                        'state': 'done',
-                        'mobile_created': True,
-                    }
-                    
-                    # Trouver ou créer le concessionnaire par défaut pour Wakati
-                    concessionnaire = request.env['hurimoney.concessionnaire'].sudo().search([
-                        ('code', '=', 'WAKATI_DEFAULT')
-                    ], limit=1)
-                    
-                    if not concessionnaire:
-                        # Créer d'abord le contact partner
-                        partner = request.env['res.partner'].sudo().create({
-                            'name': 'Wakati Mobile Money',
-                            'is_company': True,
-                            'phone': '+269 000 0000',
-                            'email': 'wakati@hurimoney.com',
-                            'comment': 'Partenaire virtuel pour les transactions Wakati'
-                        })
+                    # Utiliser une transaction séparée pour chaque transaction Wakati
+                    with request.env.cr.savepoint():
+                        # Mapping des données Wakati vers HuriMoney
+                        transaction_vals = {
+                            'external_id': wakati_transaction.get('wakati_id'),
+                            'customer_phone': wakati_transaction.get('customer_phone'),
+                            'customer_name': wakati_transaction.get('customer_name'),
+                            'amount': float(wakati_transaction.get('amount', 0)),
+                            'transaction_type': wakati_transaction.get('type', 'transfer'),
+                            'transaction_date': wakati_transaction.get('timestamp'),
+                            'reference': wakati_transaction.get('reference'),
+                            'notes': f"Importé depuis Wakati - ID: {wakati_transaction.get('wakati_id')}",
+                            'state': 'done',
+                            'mobile_created': True,
+                        }
                         
-                        concessionnaire = request.env['hurimoney.concessionnaire'].sudo().create({
-                            'name': 'Wakati Mobile Money',
-                            'code': 'WAKATI_DEFAULT',
-                            'partner_id': partner.id,
-                            'zone': 'digital',
-                            'state': 'active',
-                            'notes': 'Concessionnaire virtuel pour les transactions Wakati'
-                        })
-                    
-                    transaction_vals['concessionnaire_id'] = concessionnaire.id
-                    
-                    # Vérifier si la transaction existe déjà
-                    existing = request.env['hurimoney.transaction'].sudo().search([
-                        ('external_id', '=', transaction_vals['external_id'])
-                    ], limit=1)
-                    
-                    if not existing:
-                        request.env['hurimoney.transaction'].sudo().create(transaction_vals)
-                        processed_count += 1
+                        # Trouver ou créer le concessionnaire par défaut pour Wakati
+                        concessionnaire = request.env['hurimoney.concessionnaire'].sudo().search([
+                            ('code', '=', 'WAKATI_DEFAULT')
+                        ], limit=1)
+                        
+                        if not concessionnaire:
+                            # Créer d'abord le contact partner
+                            partner = request.env['res.partner'].sudo().create({
+                                'name': 'Wakati Mobile Money',
+                                'is_company': True,
+                                'phone': '+269 000 0000',
+                                'email': 'wakati@hurimoney.com',
+                                'comment': 'Partenaire virtuel pour les transactions Wakati'
+                            })
+                            
+                            concessionnaire = request.env['hurimoney.concessionnaire'].sudo().create({
+                                'name': 'Wakati Mobile Money',
+                                'code': 'WAKATI_DEFAULT',
+                                'partner_id': partner.id,
+                                'zone': 'digital',
+                                'state': 'active',
+                                'notes': 'Concessionnaire virtuel pour les transactions Wakati'
+                            })
+                        
+                        transaction_vals['concessionnaire_id'] = concessionnaire.id
+                        
+                        # Vérifier si la transaction existe déjà
+                        existing = request.env['hurimoney.transaction'].sudo().search([
+                            ('external_id', '=', transaction_vals['external_id'])
+                        ], limit=1)
+                        
+                        if not existing:
+                            request.env['hurimoney.transaction'].sudo().create(transaction_vals)
+                            processed_count += 1
                     
                 except Exception as e:
                     errors.append(f"Transaction {wakati_transaction.get('wakati_id')}: {str(e)}")
