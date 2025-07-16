@@ -308,9 +308,19 @@ class HuriMoneyAPIController(http.Controller):
                     ], limit=1)
                     
                     if not concessionnaire:
+                        # Créer d'abord le contact partner
+                        partner = request.env['res.partner'].sudo().create({
+                            'name': 'Wakati Mobile Money',
+                            'is_company': True,
+                            'phone': '+269 000 0000',
+                            'email': 'wakati@hurimoney.com',
+                            'comment': 'Partenaire virtuel pour les transactions Wakati'
+                        })
+                        
                         concessionnaire = request.env['hurimoney.concessionnaire'].sudo().create({
                             'name': 'Wakati Mobile Money',
                             'code': 'WAKATI_DEFAULT',
+                            'partner_id': partner.id,
                             'zone': 'digital',
                             'state': 'active',
                             'notes': 'Concessionnaire virtuel pour les transactions Wakati'
