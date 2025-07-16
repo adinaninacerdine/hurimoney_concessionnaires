@@ -4,6 +4,7 @@ import logging
 from datetime import datetime, timedelta
 from odoo import http, fields
 from odoo.http import request
+from dateutil import parser
 
 _logger = logging.getLogger(__name__)
 
@@ -290,6 +291,19 @@ class HuriMoneyAPIController(http.Controller):
                 try:
                     # Utiliser une transaction séparée pour chaque transaction Wakati
                     with request.env.cr.savepoint():
+                        # Convertir le timestamp ISO 8601 au format Odoo
+                        timestamp = wakati_transaction.get('timestamp')
+                        if timestamp:
+                            try:
+                                # Parser le timestamp ISO 8601 et le convertir au format Odoo
+                                parsed_date = parser.parse(timestamp)
+                                transaction_date = parsed_date.strftime('%Y-%m-%d %H:%M:%S')
+                            except Exception:
+                                # En cas d'erreur, utiliser la date actuelle
+                                transaction_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        else:
+                            transaction_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        
                         # Mapping des données Wakati vers HuriMoney
                         transaction_vals = {
                             'external_id': wakati_transaction.get('wakati_id'),
@@ -297,7 +311,7 @@ class HuriMoneyAPIController(http.Controller):
                             'customer_name': wakati_transaction.get('customer_name'),
                             'amount': float(wakati_transaction.get('amount', 0)),
                             'transaction_type': wakati_transaction.get('type', 'transfer'),
-                            'transaction_date': wakati_transaction.get('timestamp'),
+                            'transaction_date': transaction_date,
                             'reference': wakati_transaction.get('reference'),
                             'notes': f"Importé depuis Wakati - ID: {wakati_transaction.get('wakati_id')}",
                             'state': 'done',
