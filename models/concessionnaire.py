@@ -46,6 +46,7 @@ class HuriMoneyConcessionnaire(models.Model):
         ('mutsamudu', 'Mutsamudu'),
         ('fomboni', 'Fomboni'),
         ('rural', 'Zone rurale'),
+        ('digital', 'Digital/Mobile'),
     ], string='Zone', required=True, default='moroni')
     
     # État et dates

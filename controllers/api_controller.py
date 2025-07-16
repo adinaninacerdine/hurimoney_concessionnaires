@@ -311,7 +311,7 @@ class HuriMoneyAPIController(http.Controller):
                         concessionnaire = request.env['hurimoney.concessionnaire'].sudo().create({
                             'name': 'Wakati Mobile Money',
                             'code': 'WAKATI_DEFAULT',
-                            'zone': 'DIGITAL',
+                            'zone': 'digital',
                             'state': 'active',
                             'notes': 'Concessionnaire virtuel pour les transactions Wakati'
                         })
@@ -346,14 +346,14 @@ class HuriMoneyAPIController(http.Controller):
         """API pour Mapsly - données géospatiales des concessionnaires et clients"""
         try:
             # Récupérer les concessionnaires avec géolocalisation
-            concessionnaires = request.env['hurimoney.concessionnaire'].search([
+            concessionnaires = request.env['hurimoney.concessionnaire'].sudo().search([
                 ('latitude', '!=', 0),
                 ('longitude', '!=', 0),
                 ('state', '=', 'active')
             ])
             
             # Récupérer les clients B2C segmentés avec adresses
-            customers = request.env['res.partner'].search([
+            customers = request.env['res.partner'].sudo().search([
                 ('x_b2c_segment', '!=', False),
                 ('x_is_high_potential', '=', True),
                 '|', ('street', '!=', False), ('city', '!=', False)
@@ -431,7 +431,7 @@ class HuriMoneyAPIController(http.Controller):
             segments = ['HIGH_VALUE', 'LOYAL', 'NEW', 'AT_RISK', 'OTHER']
             
             for segment in segments:
-                customers = request.env['res.partner'].search([
+                customers = request.env['res.partner'].sudo().search([
                     ('x_b2c_segment', '=', segment)
                 ])
                 
@@ -444,7 +444,7 @@ class HuriMoneyAPIController(http.Controller):
             
             # Tendances temporelles
             last_30_days = fields.Datetime.now() - timedelta(days=30)
-            recent_transactions = request.env['hurimoney.transaction'].search([
+            recent_transactions = request.env['hurimoney.transaction'].sudo().search([
                 ('create_date', '>=', last_30_days),
                 ('state', '=', 'done')
             ])
@@ -455,7 +455,7 @@ class HuriMoneyAPIController(http.Controller):
                 'recent_activity': {
                     'transactions_30d': len(recent_transactions),
                     'volume_30d': sum(recent_transactions.mapped('amount')),
-                    'new_customers_30d': request.env['res.partner'].search_count([
+                    'new_customers_30d': request.env['res.partner'].sudo().search_count([
                         ('create_date', '>=', last_30_days),
                         ('x_b2c_segment', '!=', False)
                     ])
