@@ -59,7 +59,7 @@ class SaleOrder(models.Model):
         self.ensure_one()
         
         # Estimation de la commission potentielle basée sur la segmentation
-        estimated_commission = self.x_hurimoney_volume * 0.015  # 1.5% estimation
+        estimated_commission = float(self.x_hurimoney_volume) * 0.015  # 1.5% estimation
         
         if estimated_commission > 1000:  # Seuil minimum
             account_move = self.env['account.move'].create({
