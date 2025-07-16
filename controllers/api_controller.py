@@ -323,6 +323,8 @@ class HuriMoneyAPIController(http.Controller):
                                 'name': 'Wakati Mobile Money',
                                 'code': 'WAKATI_DEFAULT',
                                 'partner_id': partner.id,
+                                'phone': '+269 000 0000',
+                                'email': 'wakati@hurimoney.com',
                                 'zone': 'digital',
                                 'state': 'active',
                                 'notes': 'Concessionnaire virtuel pour les transactions Wakati'
