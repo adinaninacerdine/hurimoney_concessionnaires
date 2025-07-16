@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from odoo import http, fields
 from odoo.http import request
 
@@ -10,7 +10,7 @@ _logger = logging.getLogger(__name__)
 
 class HuriMoneyAPIController(http.Controller):
     
-    @http.route('/api/hurimoney/concessionnaires', type='json', auth='api_key', methods=['GET'], csrf=False)
+    @http.route('/api/hurimoney/concessionnaires', type='json', auth='public', methods=['GET'], csrf=False)
     def get_concessionnaires(self, **kwargs):
         """Récupérer la liste des concessionnaires"""
         try:
@@ -60,7 +60,7 @@ class HuriMoneyAPIController(http.Controller):
             _logger.error("Erreur API get_concessionnaires: %s", str(e))
             return {'success': False, 'error': str(e)}
     
-    @http.route('/api/hurimoney/transactions', type='json', auth='api_key', methods=['POST'], csrf=False)
+    @http.route('/api/hurimoney/transactions', type='json', auth='public', methods=['POST'], csrf=False)
     def create_transaction(self, **kwargs):
         """Créer une nouvelle transaction"""
         try:
@@ -134,7 +134,7 @@ class HuriMoneyAPIController(http.Controller):
             _logger.error("Erreur API create_transaction: %s", str(e))
             return {'success': False, 'error': str(e)}
     
-    @http.route('/api/hurimoney/transactions/<int:transaction_id>', type='json', auth='api_key', methods=['GET'], csrf=False)
+    @http.route('/api/hurimoney/transactions/<int:transaction_id>', type='json', auth='public', methods=['GET'], csrf=False)
     def get_transaction(self, transaction_id, **kwargs):
         """Récupérer le détail d'une transaction"""
         try:
@@ -167,7 +167,7 @@ class HuriMoneyAPIController(http.Controller):
             _logger.error("Erreur API get_transaction: %s", str(e))
             return {'success': False, 'error': str(e)}
     
-    @http.route('/api/hurimoney/kits', type='json', auth='api_key', methods=['GET'], csrf=False)
+    @http.route('/api/hurimoney/kits', type='json', auth='public', methods=['GET'], csrf=False)
     def get_kits(self, **kwargs):
         """Récupérer la liste des kits"""
         try:
@@ -221,7 +221,7 @@ class HuriMoneyAPIController(http.Controller):
             _logger.error("Erreur API get_kits: %s", str(e))
             return {'success': False, 'error': str(e)}
     
-    @http.route('/api/hurimoney/customers/b2c-segments', type='json', auth='api_key', methods=['GET'], csrf=False)
+    @http.route('/api/hurimoney/customers/b2c-segments', type='json', auth='public', methods=['GET'], csrf=False)
     def get_b2c_segments(self, **kwargs):
         """Récupérer les clients B2C segmentés pour synchronisation CRM"""
         try:
@@ -275,7 +275,7 @@ class HuriMoneyAPIController(http.Controller):
             _logger.error("Erreur API get_b2c_segments: %s", str(e))
             return {'success': False, 'error': str(e)}
     
-    @http.route('/api/hurimoney/wakati/sync', type='json', auth='api_key', methods=['POST'], csrf=False)
+    @http.route('/api/hurimoney/wakati/sync', type='json', auth='public', methods=['POST'], csrf=False)
     def wakati_sync(self, **kwargs):
         """Synchroniser les données depuis Wakati mobile money"""
         try:
@@ -339,7 +339,7 @@ class HuriMoneyAPIController(http.Controller):
             _logger.error("Erreur API wakati_sync: %s", str(e))
             return {'success': False, 'error': str(e)}
     
-    @http.route('/api/hurimoney/mapsly/geodata', type='json', auth='api_key', methods=['GET'], csrf=False)
+    @http.route('/api/hurimoney/mapsly/geodata', type='json', auth='public', methods=['GET'], csrf=False)
     def mapsly_geodata(self, **kwargs):
         """API pour Mapsly - données géospatiales des concessionnaires et clients"""
         try:
@@ -420,7 +420,7 @@ class HuriMoneyAPIController(http.Controller):
             _logger.error("Erreur API mapsly_geodata: %s", str(e))
             return {'success': False, 'error': str(e)}
     
-    @http.route('/api/hurimoney/analytics/segments', type='json', auth='api_key', methods=['GET'], csrf=False)
+    @http.route('/api/hurimoney/analytics/segments', type='json', auth='public', methods=['GET'], csrf=False)
     def analytics_segments(self, **kwargs):
         """Analytics des segments B2C"""
         try:

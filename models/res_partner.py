@@ -15,10 +15,11 @@ class ResPartner(models.Model):
     ], string='Segment B2C', help="Segment du client final calculé par le pipeline de données.", readonly=True, tracking=True)
     
     x_total_transactions = fields.Integer(string='Total Transactions', help="Nombre total de transactions", readonly=True)
-    x_total_amount = fields.Monetary(string='Volume Total', help="Volume total des transactions", readonly=True)
+    x_total_amount = fields.Monetary(string='Volume Total', help="Volume total des transactions", readonly=True, currency_field='currency_id')
     x_first_transaction = fields.Datetime(string='Première Transaction', readonly=True)
     x_last_transaction = fields.Datetime(string='Dernière Transaction', readonly=True)
-    x_avg_transaction = fields.Monetary(string='Montant Moyen', compute='_compute_avg_transaction', store=True)
+    x_avg_transaction = fields.Monetary(string='Montant Moyen', compute='_compute_avg_transaction', store=True, currency_field='currency_id')
+    currency_id = fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id)
     x_customer_score = fields.Float(string='Score Client', compute='_compute_customer_score', store=True)
     x_is_high_potential = fields.Boolean(string='Fort Potentiel', compute='_compute_high_potential', store=True)
     
