@@ -14,7 +14,7 @@ class HuriMoneyAPIController(http.Controller):
     def get_concessionnaires(self, **kwargs):
         """Récupérer la liste des concessionnaires"""
         try:
-            env = request.env.sudo()
+            # Utiliser sudo pour contourner les permissions
             domain = [('state', '=', 'active')]
             
             # Filtres optionnels
@@ -27,7 +27,7 @@ class HuriMoneyAPIController(http.Controller):
             limit = int(kwargs.get('limit', 100))
             offset = int(kwargs.get('offset', 0))
             
-            concessionnaires = env['hurimoney.concessionnaire'].search(
+            concessionnaires = request.env['hurimoney.concessionnaire'].sudo().search(
                 domain, 
                 limit=limit, 
                 offset=offset,
@@ -35,7 +35,7 @@ class HuriMoneyAPIController(http.Controller):
             )
             
             # Compter le total
-            total_count = env['hurimoney.concessionnaire'].search_count(domain)
+            total_count = request.env['hurimoney.concessionnaire'].sudo().search_count(domain)
             
             return {
                 'success': True,
@@ -226,8 +226,7 @@ class HuriMoneyAPIController(http.Controller):
     def get_b2c_segments(self, **kwargs):
         """Récupérer les clients B2C segmentés pour synchronisation CRM"""
         try:
-            # Utiliser un utilisateur système pour contourner les permissions
-            env = request.env.sudo()
+            # Utiliser sudo pour contourner les permissions
             domain = [('x_b2c_segment', '!=', False)]
             
             # Filtres optionnels
@@ -242,14 +241,14 @@ class HuriMoneyAPIController(http.Controller):
             limit = int(kwargs.get('limit', 100))
             offset = int(kwargs.get('offset', 0))
             
-            customers = env['res.partner'].search(
+            customers = request.env['res.partner'].sudo().search(
                 domain,
                 limit=limit,
                 offset=offset,
                 order='x_customer_score desc, x_total_amount desc'
             )
             
-            total_count = env['res.partner'].search_count(domain)
+            total_count = request.env['res.partner'].sudo().search_count(domain)
             
             return {
                 'success': True,
@@ -282,7 +281,6 @@ class HuriMoneyAPIController(http.Controller):
     def wakati_sync(self, **kwargs):
         """Synchroniser les données depuis Wakati mobile money"""
         try:
-            env = request.env.sudo()
             # Traitement par batch des transactions Wakati
             transactions = kwargs.get('transactions', [])
             processed_count = 0
@@ -305,12 +303,12 @@ class HuriMoneyAPIController(http.Controller):
                     }
                     
                     # Trouver ou créer le concessionnaire par défaut pour Wakati
-                    concessionnaire = env['hurimoney.concessionnaire'].search([
+                    concessionnaire = request.env['hurimoney.concessionnaire'].sudo().search([
                         ('code', '=', 'WAKATI_DEFAULT')
                     ], limit=1)
                     
                     if not concessionnaire:
-                        concessionnaire = env['hurimoney.concessionnaire'].create({
+                        concessionnaire = request.env['hurimoney.concessionnaire'].sudo().create({
                             'name': 'Wakati Mobile Money',
                             'code': 'WAKATI_DEFAULT',
                             'zone': 'DIGITAL',
@@ -321,12 +319,12 @@ class HuriMoneyAPIController(http.Controller):
                     transaction_vals['concessionnaire_id'] = concessionnaire.id
                     
                     # Vérifier si la transaction existe déjà
-                    existing = env['hurimoney.transaction'].search([
+                    existing = request.env['hurimoney.transaction'].sudo().search([
                         ('external_id', '=', transaction_vals['external_id'])
                     ], limit=1)
                     
                     if not existing:
-                        env['hurimoney.transaction'].create(transaction_vals)
+                        request.env['hurimoney.transaction'].sudo().create(transaction_vals)
                         processed_count += 1
                     
                 except Exception as e:
