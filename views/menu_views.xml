@@ -82,6 +82,12 @@
               parent="menu_hurimoney_root"
               sequence="20"/>
     
+    <!-- Menu principal (alias) -->
+    <menuitem id="menu_hurimoney_main"
+              name="Principal"
+              parent="menu_hurimoney_root"
+              sequence="15"/>
+    
     <menuitem id="menu_hurimoney_concessionnaires"
               name="Concessionnaires"
               parent="menu_hurimoney_operations"

@@ -150,3 +150,40 @@ Client à fort potentiel identifié via HuriMoney:
                 customer.action_create_crm_opportunity()
         
         return len(customers)
+    
+    def action_view_customer_analytics(self):
+        """Voir les analytics détaillées du client"""
+        self.ensure_one()
+        analytics = self.env['hurimoney.customer.analytics'].search([
+            ('customer_phone', '=', self.phone)
+        ], limit=1)
+        
+        if not analytics:
+            # Créer un enregistrement analytics si pas encore existant
+            analytics = self.env['hurimoney.customer.analytics'].create({
+                'customer_phone': self.phone,
+                'customer_name': self.name,
+                'partner_id': self.id
+            })
+            analytics.update_from_transactions()
+        
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'hurimoney.customer.analytics',
+            'view_mode': 'form',
+            'res_id': analytics.id,
+            'target': 'current',
+        }
+    
+    def action_view_transactions(self):
+        """Voir les transactions HuriMoney du client"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': f'Transactions - {self.name}',
+            'res_model': 'hurimoney.transaction',
+            'view_mode': 'tree,form',
+            'domain': [('customer_phone', '=', self.phone)],
+            'context': {'default_customer_phone': self.phone, 'default_customer_name': self.name},
+            'target': 'current',
+        }

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vue formulaire Partner avec champs B2C -->
+    <record id="view_partner_form_b2c" model="ir.ui.view">
+        <field name="name">res.partner.form.b2c</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='sales_purchases']" position="after">
+                <page string="Analytics B2C" invisible="not x_b2c_segment">
+                    <group>
+                        <group string="Segmentation">
+                            <field name="x_b2c_segment"/>
+                            <field name="x_customer_score" widget="percentage"/>
+                            <field name="x_is_high_potential"/>
+                        </group>
+                        <group string="Metriques">
+                            <field name="x_total_transactions"/>
+                            <field name="x_total_amount"/>
+                            <field name="x_avg_transaction"/>
+                            <field name="x_last_transaction"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- Ajouter les champs B2C aux Smart Buttons -->
+    <record id="view_partner_form_b2c_smart_buttons" model="ir.ui.view">
+        <field name="name">res.partner.form.b2c.smart.buttons</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button class="oe_stat_button" icon="fa-line-chart" 
+                        name="action_view_customer_analytics" type="object"
+                        invisible="not x_b2c_segment">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="x_customer_score" widget="percentage"/>
+                        </span>
+                        <span class="o_stat_text">Score B2C</span>
+                    </div>
+                </button>
+                
+                <button class="oe_stat_button" icon="fa-exchange" 
+                        name="action_view_transactions" type="object"
+                        invisible="not x_total_transactions">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="x_total_transactions"/>
+                        </span>
+                        <span class="o_stat_text">Transactions</span>
+                    </div>
+                </button>
+                
+                <button class="oe_stat_button" icon="fa-money" 
+                        invisible="not x_total_amount">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="x_total_amount" widget="monetary"/>
+                        </span>
+                        <span class="o_stat_text">Volume B2C</span>
+                    </div>
+                </button>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- Vue liste Partner avec colonnes B2C -->
+    <record id="view_partner_tree_b2c" model="ir.ui.view">
+        <field name="name">res.partner.tree.b2c</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='phone']" position="after">
+                <field name="x_b2c_segment" optional="hide"/>
+                <field name="x_customer_score" optional="hide" widget="percentage"/>
+                <field name="x_total_transactions" optional="hide"/>
+                <field name="x_total_amount" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- Vue recherche Partner avec filtres B2C -->
+    <record id="view_partner_search_b2c" model="ir.ui.view">
+        <field name="name">res.partner.search.b2c</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='supplier']" position="after">
+                <separator/>
+                <filter string="Clients B2C" name="b2c_customers" 
+                        domain="[('x_b2c_segment', '!=', False)]"/>
+                <filter string="Fort potentiel" name="high_potential" 
+                        domain="[('x_is_high_potential', '=', True)]"/>
+                <filter string="Champions" name="champions" 
+                        domain="[('x_b2c_segment', '=', 'CHAMPIONS')]"/>
+                <filter string="A risque" name="at_risk" 
+                        domain="[('x_b2c_segment', 'in', ['AT_RISK', 'CANNOT_LOSE'])]"/>
+            </xpath>
+            
+            <xpath expr="//group" position="inside">
+                <filter string="Segment B2C" name="group_b2c_segment" 
+                        context="{'group_by': 'x_b2c_segment'}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

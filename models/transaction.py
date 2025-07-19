@@ -64,6 +64,14 @@ class HuriMoneyTransaction(models.Model):
     customer_name = fields.Char(string='Nom du client')
     customer_phone = fields.Char(string='Téléphone du client')
     
+    # Lien avec le client B2C pour les analytics
+    customer_analytics_id = fields.Many2one(
+        'hurimoney.customer.analytics', 
+        string='Analytics Client B2C', 
+        compute='_compute_customer_analytics_id', 
+        store=True
+    )
+    
     # Référence externe (pour intégration API)
     external_id = fields.Char(string='ID externe', help='Référence dans le système externe')
     reference = fields.Char(string='Référence additionnelle')
@@ -91,6 +99,18 @@ class HuriMoneyTransaction(models.Model):
     def _compute_commission(self):
         for record in self:
             record.commission = record.amount * record.commission_rate / 100
+    
+    @api.depends('customer_phone')
+    def _compute_customer_analytics_id(self):
+        """Lier automatiquement à l'analytics client si disponible"""
+        for record in self:
+            if record.customer_phone:
+                analytics = self.env['hurimoney.customer.analytics'].search([
+                    ('customer_phone', '=', record.customer_phone)
+                ], limit=1)
+                record.customer_analytics_id = analytics.id
+            else:
+                record.customer_analytics_id = False
     
     @api.constrains('amount')
     def _check_amount(self):
