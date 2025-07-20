@@ -113,6 +113,7 @@
     <record id="view_data_pipeline_tree" model="ir.ui.view">
         <field name="name">hurimoney.data.pipeline.tree</field>
         <field name="model">hurimoney.data.pipeline</field>
+        <field name="type">list</field>
         <field name="arch" type="xml">
             <tree string="Pipelines de données">
                 <field name="name"/>

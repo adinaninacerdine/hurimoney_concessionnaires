@@ -169,6 +169,7 @@
     <record id="view_customer_analytics_tree" model="ir.ui.view">
         <field name="name">hurimoney.customer.analytics.tree</field>
         <field name="model">hurimoney.customer.analytics</field>
+        <field name="type">list</field>
         <field name="arch" type="xml">
             <tree string="Analytics Clients B2C" default_order="monetary_value desc">
                 <field name="customer_name"/>
