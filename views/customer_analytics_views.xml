@@ -352,7 +352,7 @@ action = model.sync_all_from_transactions()
     <!-- Menu -->
     <menuitem id="menu_customer_analytics"
               name="Analytics Clients"
-              parent="hurimoney_concessionnaires.menu_hurimoney_main"
+              parent="hurimoney_concessionnaires.menu_hurimoney_root"
               action="action_customer_analytics"
               sequence="25"/>
     
