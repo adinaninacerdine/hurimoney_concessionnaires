@@ -363,6 +363,21 @@ class CustomerAnalytics(models.Model):
             'target': 'current',
         }
     
+    def action_view_partner(self):
+        """Voir le partenaire associé"""
+        self.ensure_one()
+        if not self.partner_id:
+            raise UserError("Aucun partenaire associé à ce client")
+        
+        return {
+            'type': 'ir.actions.act_window',
+            'name': f'Partenaire - {self.partner_id.name}',
+            'res_model': 'res.partner',
+            'view_mode': 'form',
+            'res_id': self.partner_id.id,
+            'target': 'current',
+        }
+    
     def name_get(self):
         """Personnaliser l'affichage du nom"""
         result = []
