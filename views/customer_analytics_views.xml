@@ -54,9 +54,9 @@
                             <field name="last_update" readonly="1"/>
                         </group>
                         <group string="Scores RFM">
-                            <field name="recency_score" widget="priority"/>
-                            <field name="frequency_score" widget="priority"/>
-                            <field name="monetary_score" widget="priority"/>
+                            <field name="recency_score" widget="integer"/>
+                            <field name="frequency_score" widget="integer"/>
+                            <field name="monetary_score" widget="integer"/>
                             <field name="rfm_score" readonly="1"/>
                         </group>
                     </group>
