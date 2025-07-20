@@ -25,6 +25,9 @@ pour les services de transfert d'argent mobile.
         'base',
         'mail',
         'contacts',
+        'crm',
+        'account',
+        'sale',
     ],
     'data': [
         # Security
@@ -39,6 +42,9 @@ pour les services de transfert d'argent mobile.
         'views/kit_views.xml',
         'views/transaction_views.xml',
         'views/concessionnaire_views.xml',
+        'views/customer_analytics_views.xml',
+        'views/data_pipeline_views.xml',
+        'views/res_partner_b2c_views.xml',
         'wizards/import_wizard_views.xml',
         'views/menu_views.xml',
     ],

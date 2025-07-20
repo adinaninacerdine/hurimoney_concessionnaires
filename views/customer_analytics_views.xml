@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vue formulaire Customer Analytics -->
+    <record id="view_customer_analytics_form" model="ir.ui.view">
+        <field name="name">hurimoney.customer.analytics.form</field>
+        <field name="model">hurimoney.customer.analytics</field>
+        <field name="arch" type="xml">
+            <form string="Analytics Client B2C">
+                <header>
+                    <button name="update_from_transactions" string="Synchroniser" type="object" 
+                            class="btn-primary"/>
+                    <button name="action_create_partner" string="Créer Partenaire" type="object" 
+                            class="btn-secondary" invisible="partner_id"/>
+                    <field name="segment" widget="statusbar" 
+                           statusbar_visible="NEW_CUSTOMERS,PROMISING,LOYAL,CHAMPIONS"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Champion" bg_color="text-bg-success" 
+                            invisible="segment != 'CHAMPIONS'"/>
+                    <widget name="web_ribbon" title="À risque" bg_color="text-bg-warning" 
+                            invisible="segment not in ['AT_RISK', 'CANNOT_LOSE']"/>
+                    <widget name="web_ribbon" title="Perdu" bg_color="text-bg-danger" 
+                            invisible="segment != 'LOST'"/>
+                    
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-phone" type="object" 
+                                name="action_view_transactions">
+                            <field name="frequency" widget="statinfo" string="Transactions"/>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-money" type="object" 
+                                name="action_view_partner" invisible="not partner_id">
+                            <field name="monetary_value" widget="monetary" options="{'currency_field': 'currency_id'}" 
+                                   string="Volume total"/>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-clock-o">
+                            <field name="recency_days" widget="statinfo" string="Récence (jours)"/>
+                        </button>
+                    </div>
+                    
+                    <div class="oe_title">
+                        <h1>
+                            <field name="customer_name" placeholder="Nom du client"/>
+                        </h1>
+                        <h2>
+                            <field name="customer_phone" placeholder="+XXX XXX XXX"/>
+                        </h2>
+                    </div>
+                    
+                    <group>
+                        <group string="Informations client">
+                            <field name="partner_id" readonly="1"/>
+                            <field name="data_source"/>
+                            <field name="active"/>
+                            <field name="last_update" readonly="1"/>
+                        </group>
+                        <group string="Scores RFM">
+                            <field name="recency_score" widget="priority"/>
+                            <field name="frequency_score" widget="priority"/>
+                            <field name="monetary_score" widget="priority"/>
+                            <field name="rfm_score" readonly="1"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Métriques" name="metrics">
+                            <group>
+                                <group string="Historique transactionnel">
+                                    <field name="first_transaction_date" readonly="1"/>
+                                    <field name="last_transaction_date" readonly="1"/>
+                                    <field name="days_as_customer" readonly="1"/>
+                                </group>
+                                <group string="Valeurs calculées">
+                                    <field name="avg_transaction_amount" readonly="1"/>
+                                    <field name="currency_id" invisible="1"/>
+                                </group>
+                            </group>
+                            
+                            <group string="Graphiques de performance">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="card">
+                                            <div class="card-header">Score Récence</div>
+                                            <div class="card-body text-center">
+                                                <h2 class="text-primary">
+                                                    <field name="recency_score" readonly="1"/>/5
+                                                </h2>
+                                                <small class="text-muted">
+                                                    <field name="recency_days"/> jours
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card">
+                                            <div class="card-header">Score Fréquence</div>
+                                            <div class="card-body text-center">
+                                                <h2 class="text-info">
+                                                    <field name="frequency_score" readonly="1"/>/5
+                                                </h2>
+                                                <small class="text-muted">
+                                                    <field name="frequency"/> transactions
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card">
+                                            <div class="card-header">Score Monétaire</div>
+                                            <div class="card-body text-center">
+                                                <h2 class="text-success">
+                                                    <field name="monetary_score" readonly="1"/>/5
+                                                </h2>
+                                                <small class="text-muted">
+                                                    <field name="monetary_value" widget="monetary"/>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </group>
+                        </page>
+                        
+                        <page string="Segmentation" name="segmentation">
+                            <group>
+                                <field name="segment" widget="badge" 
+                                       decoration-success="segment in ['CHAMPIONS', 'LOYAL']"
+                                       decoration-warning="segment in ['AT_RISK', 'NEED_ATTENTION']"
+                                       decoration-danger="segment in ['LOST', 'HIBERNATING']"/>
+                            </group>
+                            
+                            <div class="alert alert-info" role="alert" invisible="segment != 'CHAMPIONS'">
+                                <strong>🏆 Champions:</strong> Vos meilleurs clients ! Ils achètent récemment, 
+                                fréquemment et dépensent beaucoup. Récompensez-les et demandez des avis.
+                            </div>
+                            
+                            <div class="alert alert-success" role="alert" invisible="segment != 'LOYAL'">
+                                <strong>💚 Clients fidèles:</strong> Ils dépensent beaucoup et achètent souvent. 
+                                Offrez-leur des produits complémentaires et des programmes de fidélité.
+                            </div>
+                            
+                            <div class="alert alert-primary" role="alert" invisible="segment != 'POTENTIAL_LOYALISTS'">
+                                <strong>🌟 Loyalistes potentiels:</strong> Clients récents avec bon potentiel. 
+                                Offrez des programmes d'adhésion ou de fidélité.
+                            </div>
+                            
+                            <div class="alert alert-secondary" role="alert" invisible="segment != 'NEW_CUSTOMERS'">
+                                <strong>👋 Nouveaux clients:</strong> Acheteurs récents mais peu fréquents. 
+                                Concentrez-vous sur l'intégration et le support.
+                            </div>
+                            
+                            <div class="alert alert-warning" role="alert" invisible="segment not in ['AT_RISK', 'NEED_ATTENTION']">
+                                <strong>⚠️ Attention requise:</strong> Clients qui risquent de partir. 
+                                Contactez-les avec des offres spéciales et campagnes de réactivation.
+                            </div>
+                            
+                            <div class="alert alert-danger" role="alert" invisible="segment not in ['LOST', 'HIBERNATING']">
+                                <strong>😴 Clients inactifs:</strong> N'ont pas acheté depuis longtemps. 
+                                Campagnes de reconquête avec des offres attractives nécessaires.
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Vue liste Customer Analytics -->
+    <record id="view_customer_analytics_tree" model="ir.ui.view">
+        <field name="name">hurimoney.customer.analytics.tree</field>
+        <field name="model">hurimoney.customer.analytics</field>
+        <field name="arch" type="xml">
+            <tree string="Analytics Clients B2C" default_order="monetary_value desc">
+                <field name="customer_name"/>
+                <field name="customer_phone"/>
+                <field name="segment" widget="badge" 
+                       decoration-success="segment in ['CHAMPIONS', 'LOYAL']"
+                       decoration-warning="segment in ['AT_RISK', 'NEED_ATTENTION', 'POTENTIAL_LOYALISTS']"
+                       decoration-danger="segment in ['LOST', 'HIBERNATING']"
+                       decoration-info="segment in ['NEW_CUSTOMERS', 'PROMISING']"/>
+                <field name="recency_days" optional="show"/>
+                <field name="frequency" sum="Total transactions"/>
+                <field name="monetary_value" sum="Volume total"/>
+                <field name="avg_transaction_amount" optional="hide"/>
+                <field name="rfm_score" optional="show"/>
+                <field name="last_transaction_date" optional="show"/>
+                <field name="partner_id" optional="hide"/>
+                <field name="data_source" optional="hide"/>
+                <field name="active" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Vue kanban Customer Analytics -->
+    <record id="view_customer_analytics_kanban" model="ir.ui.view">
+        <field name="name">hurimoney.customer.analytics.kanban</field>
+        <field name="model">hurimoney.customer.analytics</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="segment" class="o_kanban_dashboard">
+                <field name="customer_name"/>
+                <field name="customer_phone"/>
+                <field name="segment"/>
+                <field name="monetary_value"/>
+                <field name="frequency"/>
+                <field name="recency_days"/>
+                <field name="rfm_score"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="customer_name"/>
+                                        </strong>
+                                        <small class="text-muted">
+                                            <field name="customer_phone"/>
+                                        </small>
+                                    </div>
+                                    <div class="o_kanban_record_subtitle">
+                                        Score RFM: <field name="rfm_score"/>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <small>Transactions:</small>
+                                            <strong><field name="frequency"/></strong>
+                                        </div>
+                                        <div class="col-6">
+                                            <small>Volume:</small>
+                                            <strong><field name="monetary_value" widget="monetary"/></strong>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-1">
+                                        <div class="col-12">
+                                            <small>Récence: <field name="recency_days"/> jours</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    
+    <!-- Vue graphique Customer Analytics -->
+    <record id="view_customer_analytics_graph" model="ir.ui.view">
+        <field name="name">hurimoney.customer.analytics.graph</field>
+        <field name="model">hurimoney.customer.analytics</field>
+        <field name="arch" type="xml">
+            <graph string="Analytics Clients" type="bar">
+                <field name="segment" type="row"/>
+                <field name="monetary_value" type="measure"/>
+                <field name="frequency" type="measure"/>
+            </graph>
+        </field>
+    </record>
+    
+    <!-- Vue pivot Customer Analytics -->
+    <record id="view_customer_analytics_pivot" model="ir.ui.view">
+        <field name="name">hurimoney.customer.analytics.pivot</field>
+        <field name="model">hurimoney.customer.analytics</field>
+        <field name="arch" type="xml">
+            <pivot string="Analyse des segments">
+                <field name="segment" type="row"/>
+                <field name="data_source" type="col"/>
+                <field name="monetary_value" type="measure"/>
+                <field name="frequency" type="measure"/>
+                <field name="recency_days" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    
+    <!-- Vue recherche Customer Analytics -->
+    <record id="view_customer_analytics_search" model="ir.ui.view">
+        <field name="name">hurimoney.customer.analytics.search</field>
+        <field name="model">hurimoney.customer.analytics</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher clients">
+                <field name="customer_name"/>
+                <field name="customer_phone"/>
+                <field name="segment"/>
+                <field name="partner_id"/>
+                
+                <filter string="Champions" name="champions" domain="[('segment', '=', 'CHAMPIONS')]"/>
+                <filter string="Clients fidèles" name="loyal" domain="[('segment', '=', 'LOYAL')]"/>
+                <filter string="À risque" name="at_risk" domain="[('segment', 'in', ['AT_RISK', 'CANNOT_LOSE'])]"/>
+                <filter string="Nouveaux" name="new" domain="[('segment', '=', 'NEW_CUSTOMERS')]"/>
+                <filter string="Perdus" name="lost" domain="[('segment', 'in', ['LOST', 'HIBERNATING'])]"/>
+                
+                <separator/>
+                <filter string="Récents (30j)" name="recent" 
+                        domain="[('recency_days', '&lt;=', 30)]"/>
+                <filter string="Actifs" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Avec partenaire" name="with_partner" 
+                        domain="[('partner_id', '!=', False)]"/>
+                
+                <separator/>
+                <filter string="Haut volume" name="high_value" 
+                        domain="[('monetary_value', '&gt;=', 1000000)]"/>
+                <filter string="Fréquents" name="frequent" 
+                        domain="[('frequency', '&gt;=', 10)]"/>
+                
+                <group expand="0" string="Grouper par">
+                    <filter string="Segment" name="group_segment" context="{'group_by': 'segment'}"/>
+                    <filter string="Source données" name="group_source" context="{'group_by': 'data_source'}"/>
+                    <filter string="Score RFM" name="group_rfm" context="{'group_by': 'rfm_score'}"/>
+                    <filter string="Mois dernière transaction" name="group_month" 
+                            context="{'group_by': 'last_transaction_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <!-- Actions -->
+    <record id="action_customer_analytics" model="ir.actions.act_window">
+        <field name="name">Analytics Clients B2C</field>
+        <field name="res_model">hurimoney.customer.analytics</field>
+        <field name="view_mode">kanban,tree,form,graph,pivot</field>
+        <field name="search_view_id" ref="view_customer_analytics_search"/>
+        <field name="context">{'search_default_active': 1}</field>
+    </record>
+    
+    <record id="action_customer_analytics_champions" model="ir.actions.act_window">
+        <field name="name">Clients Champions</field>
+        <field name="res_model">hurimoney.customer.analytics</field>
+        <field name="view_mode">tree,form,kanban</field>
+        <field name="domain">[('segment', '=', 'CHAMPIONS')]</field>
+    </record>
+    
+    <record id="action_customer_analytics_at_risk" model="ir.actions.act_window">
+        <field name="name">Clients à risque</field>
+        <field name="res_model">hurimoney.customer.analytics</field>
+        <field name="view_mode">tree,form,kanban</field>
+        <field name="domain">[('segment', 'in', ['AT_RISK', 'CANNOT_LOSE', 'ABOUT_TO_SLEEP'])]</field>
+    </record>
+    
+    <!-- Action serveur pour synchronisation -->
+    <record id="action_sync_all_analytics" model="ir.actions.server">
+        <field name="name">Synchroniser toutes les analytics</field>
+        <field name="model_id" ref="model_hurimoney_customer_analytics"/>
+        <field name="state">code</field>
+        <field name="code">
+action = model.sync_all_from_transactions()
+        </field>
+    </record>
+    
+    <!-- Menu -->
+    <menuitem id="menu_customer_analytics"
+              name="Analytics Clients"
+              parent="hurimoney_concessionnaires.menu_hurimoney_main"
+              action="action_customer_analytics"
+              sequence="25"/>
+    
+    <menuitem id="menu_customer_analytics_champions"
+              name="Champions"
+              parent="menu_customer_analytics"
+              action="action_customer_analytics_champions"
+              sequence="10"/>
+    
+    <menuitem id="menu_customer_analytics_at_risk"
+              name="À risque"
+              parent="menu_customer_analytics"
+              action="action_customer_analytics_at_risk"
+              sequence="20"/>
+</odoo>

@@ -11,3 +11,8 @@ access_hurimoney_transaction_admin,hurimoney.transaction admin,model_hurimoney_t
 access_hurimoney_import_wizard_user,hurimoney.import.wizard user,model_hurimoney_import_wizard,group_hurimoney_user,1,1,1,0
 access_hurimoney_import_wizard_manager,hurimoney.import.wizard manager,model_hurimoney_import_wizard,group_hurimoney_manager,1,1,1,0
 access_hurimoney_import_wizard_admin,hurimoney.import.wizard admin,model_hurimoney_import_wizard,group_hurimoney_admin,1,1,1,1
+access_customer_analytics_user,hurimoney.customer.analytics user,model_hurimoney_customer_analytics,group_hurimoney_user,1,0,0,0
+access_customer_analytics_manager,hurimoney.customer.analytics manager,model_hurimoney_customer_analytics,group_hurimoney_manager,1,1,1,1
+access_data_pipeline_manager,hurimoney.data.pipeline manager,model_hurimoney_data_pipeline,group_hurimoney_manager,1,1,1,0
+access_data_pipeline_admin,hurimoney.data.pipeline admin,model_hurimoney_data_pipeline,group_hurimoney_admin,1,1,1,1
+access_pipeline_wizard_all,hurimoney.pipeline.config.wizard all,model_hurimoney_pipeline_config_wizard,base.group_user,1,1,1,1

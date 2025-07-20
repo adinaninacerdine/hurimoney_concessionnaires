@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vue formulaire Pipeline -->
+    <record id="view_data_pipeline_form" model="ir.ui.view">
+        <field name="name">hurimoney.data.pipeline.form</field>
+        <field name="model">hurimoney.data.pipeline</field>
+        <field name="arch" type="xml">
+            <form string="Pipeline de données B2C">
+                <header>
+                    <button name="start_pipeline" string="Démarrer" type="object" 
+                            class="btn-success" invisible="state == 'running'"/>
+                    <button name="stop_pipeline" string="Arrêter" type="object" 
+                            class="btn-danger" invisible="state != 'running'"/>
+                    <button name="process_kinesis_records" string="Traiter maintenant" type="object" 
+                            class="btn-primary" invisible="state == 'running'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="stopped,running"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="En cours" bg_color="text-bg-success" invisible="state != 'running'"/>
+                    <widget name="web_ribbon" title="Erreur" bg_color="text-bg-danger" invisible="state != 'error'"/>
+                    
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-database">
+                            <field name="records_processed" widget="statinfo" string="Enregistrements"/>
+                        </button>
+                    </div>
+                    
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nom du pipeline"/>
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group string="État">
+                            <field name="last_processing_date" readonly="1"/>
+                            <field name="last_sequence_number" readonly="1"/>
+                            <field name="error_message" readonly="1" invisible="not error_message" 
+                                   widget="html" class="alert alert-danger"/>
+                        </group>
+                        <group string="Configuration">
+                            <field name="batch_size"/>
+                            <field name="processing_interval"/>
+                            <field name="enable_real_time"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="AWS Kinesis" name="kinesis">
+                            <group>
+                                <field name="kinesis_enabled"/>
+                                <field name="kinesis_stream_name" required="kinesis_enabled" invisible="not kinesis_enabled"/>
+                                <field name="kinesis_region" required="kinesis_enabled" invisible="not kinesis_enabled"/>
+                                <field name="kinesis_access_key" password="True" required="kinesis_enabled" invisible="not kinesis_enabled"/>
+                                <field name="kinesis_secret_key" password="True" required="kinesis_enabled" invisible="not kinesis_enabled"/>
+                            </group>
+                        </page>
+                        
+                        <page string="AWS DynamoDB" name="dynamodb">
+                            <group>
+                                <field name="dynamodb_enabled"/>
+                                <field name="dynamodb_table_name" required="dynamodb_enabled" invisible="not dynamodb_enabled"/>
+                            </group>
+                            <div invisible="not dynamodb_enabled">
+                                <p class="text-muted">
+                                    DynamoDB utilise les mêmes credentials AWS que Kinesis.
+                                    La table doit avoir 'customer_phone' comme clé de partition.
+                                </p>
+                            </div>
+                        </page>
+                        
+                        <page string="MongoDB/DocumentDB" name="mongodb">
+                            <group>
+                                <field name="mongodb_enabled"/>
+                                <field name="mongodb_connection" password="True" required="mongodb_enabled" 
+                                       invisible="not mongodb_enabled" 
+                                       placeholder="mongodb://user:password@host:port/database"/>
+                                <field name="mongodb_database" required="mongodb_enabled" invisible="not mongodb_enabled"/>
+                            </group>
+                        </page>
+                        
+                        <page string="Monitoring" name="monitoring">
+                            <group string="Métriques temps réel">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h4>Segments clients (DynamoDB)</h4>
+                                        <div id="segment_stats">
+                                            <!-- Stats chargées dynamiquement -->
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h4>Performance du pipeline</h4>
+                                        <div id="pipeline_metrics">
+                                            <!-- Métriques chargées dynamiquement -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </group>
+                        </page>
+                    </notebook>
+                    
+                    <footer>
+                        <button name="%(action_pipeline_config_wizard)d" string="Tester connexions" 
+                                type="action" class="btn-secondary" context="{'default_pipeline_id': active_id}"/>
+                    </footer>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Vue liste Pipeline -->
+    <record id="view_data_pipeline_tree" model="ir.ui.view">
+        <field name="name">hurimoney.data.pipeline.tree</field>
+        <field name="model">hurimoney.data.pipeline</field>
+        <field name="arch" type="xml">
+            <tree string="Pipelines de données">
+                <field name="name"/>
+                <field name="state" widget="badge" decoration-success="state == 'running'" 
+                       decoration-danger="state == 'error'" decoration-muted="state == 'stopped'"/>
+                <field name="records_processed"/>
+                <field name="last_processing_date"/>
+                <field name="kinesis_enabled" widget="boolean_toggle"/>
+                <field name="dynamodb_enabled" widget="boolean_toggle"/>
+                <field name="mongodb_enabled" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Wizard de configuration -->
+    <record id="view_pipeline_config_wizard" model="ir.ui.view">
+        <field name="name">hurimoney.pipeline.config.wizard.form</field>
+        <field name="model">hurimoney.pipeline.config.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Test des connexions">
+                <group>
+                    <field name="pipeline_id" invisible="1"/>
+                    <field name="test_kinesis"/>
+                    <field name="test_dynamodb"/>
+                    <field name="test_mongodb"/>
+                </group>
+                <div invisible="test_results">
+                    <p>Cliquez sur "Tester" pour vérifier les connexions.</p>
+                </div>
+                <field name="test_results" readonly="1" invisible="not test_results"/>
+                <footer>
+                    <button name="action_test_connections" string="Tester" type="object" class="btn-primary"/>
+                    <button string="Fermer" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Actions -->
+    <record id="action_data_pipeline" model="ir.actions.act_window">
+        <field name="name">Pipeline de données</field>
+        <field name="res_model">hurimoney.data.pipeline</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    
+    <record id="action_pipeline_config_wizard" model="ir.actions.act_window">
+        <field name="name">Tester les connexions</field>
+        <field name="res_model">hurimoney.pipeline.config.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+    
+    <!-- Menu -->
+    <menuitem id="menu_data_pipeline"
+              name="Pipeline de données"
+              parent="hurimoney_concessionnaires.menu_hurimoney_config"
+              action="action_data_pipeline"
+              sequence="30"/>
+    
+    <!-- Cron pour traitement automatique -->
+    <record id="cron_process_pipeline" model="ir.cron">
+        <field name="name">HuriMoney: Traiter pipeline de données</field>
+        <field name="model_id" ref="model_hurimoney_data_pipeline"/>
+        <field name="state">code</field>
+        <field name="code">
+pipelines = model.search([('state', '=', 'running'), ('enable_real_time', '=', False)])
+for pipeline in pipelines:
+    pipeline.process_kinesis_records()
+        </field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+    </record>
+</odoo>
