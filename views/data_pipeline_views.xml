@@ -164,7 +164,7 @@
     <record id="action_data_pipeline" model="ir.actions.act_window">
         <field name="name">Pipeline de données</field>
         <field name="res_model">hurimoney.data.pipeline</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
     
     <!-- Menu -->

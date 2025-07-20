@@ -139,7 +139,7 @@ Client à fort potentiel identifié via HuriMoney:
             'type': 'ir.actions.act_window',
             'name': f'Transactions HuriMoney - {self.name}',
             'res_model': 'hurimoney.transaction',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('customer_phone', '=', self.phone)],
             'context': {'default_customer_phone': self.phone, 'default_customer_name': self.name},
             'target': 'current',

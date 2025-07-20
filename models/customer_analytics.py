@@ -357,7 +357,7 @@ class CustomerAnalytics(models.Model):
             'type': 'ir.actions.act_window',
             'name': f'Transactions - {self.customer_name}',
             'res_model': 'hurimoney.transaction',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('customer_phone', '=', self.customer_phone)],
             'context': {'default_customer_phone': self.customer_phone},
             'target': 'current',
