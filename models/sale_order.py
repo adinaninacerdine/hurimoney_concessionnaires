@@ -29,7 +29,7 @@ class SaleOrder(models.Model):
         store=True
     )
     
-    x_hurimoney_volume = fields.Monetary(
+    x_hurimoney_volume = fields.Float(
         string='Volume HuriMoney Client',
         related='partner_id.x_total_amount',
         readonly=True,
