@@ -107,3 +107,40 @@ Client à fort potentiel identifié via HuriMoney:
         })
         
         return opportunity
+    
+    def action_view_customer_analytics(self):
+        """Voir les analytics client B2C"""
+        self.ensure_one()
+        analytics = self.env['hurimoney.customer.analytics'].search([
+            ('customer_phone', '=', self.phone)
+        ], limit=1)
+        
+        if not analytics:
+            # Créer l'enregistrement analytics s'il n'existe pas
+            analytics = self.env['hurimoney.customer.analytics'].create({
+                'customer_phone': self.phone,
+                'customer_name': self.name,
+            })
+            analytics.update_from_transactions()
+        
+        return {
+            'type': 'ir.actions.act_window',
+            'name': f'Analytics B2C - {self.name}',
+            'res_model': 'hurimoney.customer.analytics',
+            'view_mode': 'form',
+            'res_id': analytics.id,
+            'target': 'current',
+        }
+    
+    def action_view_transactions(self):
+        """Voir les transactions HuriMoney du client"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': f'Transactions HuriMoney - {self.name}',
+            'res_model': 'hurimoney.transaction',
+            'view_mode': 'tree,form',
+            'domain': [('customer_phone', '=', self.phone)],
+            'context': {'default_customer_phone': self.phone, 'default_customer_name': self.name},
+            'target': 'current',
+        }
