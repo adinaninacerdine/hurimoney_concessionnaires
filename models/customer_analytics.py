@@ -350,6 +350,19 @@ class CustomerAnalytics(models.Model):
             if any(score < 1 or score > 5 for score in scores):
                 raise ValidationError("Les scores RFM doivent être entre 1 et 5")
     
+    def action_view_transactions(self):
+        """Voir les transactions du client"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': f'Transactions - {self.customer_name}',
+            'res_model': 'hurimoney.transaction',
+            'view_mode': 'tree,form',
+            'domain': [('customer_phone', '=', self.customer_phone)],
+            'context': {'default_customer_phone': self.customer_phone},
+            'target': 'current',
+        }
+    
     def name_get(self):
         """Personnaliser l'affichage du nom"""
         result = []
