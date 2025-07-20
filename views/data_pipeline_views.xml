@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Actions (définies en premier) -->
+    <record id="action_pipeline_config_wizard" model="ir.actions.act_window">
+        <field name="name">Tester les connexions</field>
+        <field name="res_model">hurimoney.pipeline.config.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+    
     <!-- Vue formulaire Pipeline -->
     <record id="view_data_pipeline_form" model="ir.ui.view">
         <field name="name">hurimoney.data.pipeline.form</field>
@@ -157,13 +165,6 @@
         <field name="name">Pipeline de données</field>
         <field name="res_model">hurimoney.data.pipeline</field>
         <field name="view_mode">tree,form</field>
-    </record>
-    
-    <record id="action_pipeline_config_wizard" model="ir.actions.act_window">
-        <field name="name">Tester les connexions</field>
-        <field name="res_model">hurimoney.pipeline.config.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
     </record>
     
     <!-- Menu -->
