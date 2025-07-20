@@ -115,7 +115,7 @@
         <field name="model">hurimoney.data.pipeline</field>
         <field name="type">list</field>
         <field name="arch" type="xml">
-            <tree string="Pipelines de données">
+            <list string="Pipelines de données">
                 <field name="name"/>
                 <field name="state" widget="badge" decoration-success="state == 'running'" 
                        decoration-danger="state == 'error'" decoration-muted="state == 'stopped'"/>
@@ -124,7 +124,7 @@
                 <field name="kinesis_enabled" widget="boolean_toggle"/>
                 <field name="dynamodb_enabled" widget="boolean_toggle"/>
                 <field name="mongodb_enabled" widget="boolean_toggle"/>
-            </tree>
+            </list>
         </field>
     </record>
     

@@ -171,7 +171,7 @@
         <field name="model">hurimoney.customer.analytics</field>
         <field name="type">list</field>
         <field name="arch" type="xml">
-            <tree string="Analytics Clients B2C" default_order="monetary_value desc">
+            <list string="Analytics Clients B2C" default_order="monetary_value desc">
                 <field name="customer_name"/>
                 <field name="customer_phone"/>
                 <field name="segment" widget="badge" 
@@ -188,7 +188,7 @@
                 <field name="partner_id" optional="hide"/>
                 <field name="data_source" optional="hide"/>
                 <field name="active" invisible="1"/>
-            </tree>
+            </list>
         </field>
     </record>
     
