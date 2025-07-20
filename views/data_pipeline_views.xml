@@ -109,7 +109,7 @@
                     
                     <footer>
                         <button name="%(action_pipeline_config_wizard)d" string="Tester connexions" 
-                                type="action" class="btn-secondary" context="{'default_pipeline_id': active_id}"/>
+                                type="action" class="btn-secondary" context="{'default_pipeline_id': id}"/>
                     </footer>
                 </sheet>
                 <chatter/>
