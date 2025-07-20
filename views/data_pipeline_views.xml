@@ -186,7 +186,6 @@ for pipeline in pipelines:
         </field>
         <field name="interval_number">5</field>
         <field name="interval_type">minutes</field>
-        <field name="max_execution">0</field>
         <field name="active">True</field>
     </record>
 </odoo>
